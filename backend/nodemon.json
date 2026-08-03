@@ -1,0 +1,8 @@
+{
+  "ignore": [
+    "public/*",
+    "node_modules/*",
+    "utils/seeder.js"
+  ],
+  "ext": "js,mjs,cjs,json"
+}
