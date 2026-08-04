@@ -32,7 +32,7 @@ const Transfers = () => {
   const [status, setStatus] = useState('Draft');
   const [items, setItems] = useState([{ productId: '', quantity: 1 }]);
 
-  const BACKEND_URL = 'http://localhost:5000';
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
   const loadData = async () => {
     setLoading(true);
