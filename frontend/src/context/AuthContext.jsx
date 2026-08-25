@@ -7,7 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const BACKEND_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+  const BACKEND_API_URL = import.meta.env.VITE_API_URL || '/api';
 
   useEffect(() => {
     // Check if user is logged in
@@ -117,7 +117,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     apiFetch,
     hasPermission,
-    backendUrl: import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000'
+    backendUrl: import.meta.env.VITE_BACKEND_URL || ''
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

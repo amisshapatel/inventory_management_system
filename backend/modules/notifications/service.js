@@ -1,9 +1,10 @@
 import nodemailer from 'nodemailer';
 import { NotificationSetting } from '../settings/model.js';
 import Warehouse from '../warehouses/model.js';
+import dns from 'dns';
 
 // Create a transporter using environment variables
-const createTransporter = () => {
+const createTransporter = async () => {
   const host = process.env.SMTP_HOST;
   const port = process.env.SMTP_PORT;
   const user = process.env.SMTP_USER;
@@ -13,13 +14,24 @@ const createTransporter = () => {
     return null; // Return null to fallback to console logging
   }
 
+  let resolvedHost = host;
+  try {
+    const { address } = await dns.promises.lookup(host, { family: 4 });
+    resolvedHost = address;
+  } catch (err) {
+    console.warn(`DNS lookup failed for SMTP host ${host}, falling back to original host:`, err);
+  }
+
   return nodemailer.createTransport({
-    host,
+    host: resolvedHost,
     port: parseInt(port, 10),
     secure: parseInt(port, 10) === 465, // true for 465, false for other ports
     auth: {
       user,
       pass
+    },
+    tls: {
+      servername: host
     }
   });
 };
@@ -135,7 +147,7 @@ export const triggerEmailAlert = async (eventType, data) => {
 
     const { subject, html } = await generateEmailTemplate(eventType, data);
 
-    const transporter = createTransporter();
+    const transporter = await createTransporter();
     const fromAddress = process.env.SMTP_FROM || 'noreply@stockpilot.com';
     const toList = setting.recipients.join(', ');
 
@@ -164,3 +176,4 @@ export const triggerEmailAlert = async (eventType, data) => {
     console.error(`Failed to trigger notification email for event '${eventType}':`, error);
   }
 };
+

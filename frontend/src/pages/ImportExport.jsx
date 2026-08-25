@@ -11,6 +11,7 @@ const ImportExport = () => {
   // CSV Import States
   const [step, setStep] = useState(1); // 1: Upload, 2: Map Columns, 3: Validate & Preview
   const [file, setFile] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [csvHeaders, setCsvHeaders] = useState([]);
   const [csvRows, setCsvRows] = useState([]);
   const [mapping, setMapping] = useState({});
@@ -91,6 +92,65 @@ const ImportExport = () => {
     });
   };
 
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const droppedFile = e.dataTransfer.files[0];
+      if (droppedFile.name.endsWith('.csv')) {
+        setFile(droppedFile);
+      } else {
+        setErrorMsg('Please select a valid CSV file.');
+      }
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    const headers = [
+      'SKU',
+      'Name',
+      'Category',
+      'Unit',
+      'Description',
+      'Minimum Stock',
+      'Opening Stock',
+      'Warehouse Code',
+      ...customFieldDefs.map(def => def.label)
+    ];
+    const dummyRow = [
+      'PROD-100',
+      'Sample Product Name',
+      'Electronics',
+      'Pcs',
+      'A premium sample product description',
+      '15',
+      '50',
+      'WH-MAIN',
+      ...customFieldDefs.map(def => {
+        if (def.type === 'Number') return '10';
+        if (def.type === 'Date') return new Date().toLocaleDateString();
+        if (def.type === 'Boolean') return 'Yes';
+        return 'Sample Value';
+      })
+    ];
+    const csvContent = [headers.join(','), dummyRow.join(',')].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'stockpilot_products_template.csv');
+    a.click();
+  };
+
   // Run validation
   const handleValidateMapping = async (e) => {
     e.preventDefault();
@@ -169,10 +229,18 @@ const ImportExport = () => {
         }
       }
       result.push(current);
-      return result;
+      
+      // Clean enclosing quotes and trim values
+      return result.map(val => {
+        let clean = val.trim();
+        if (clean.startsWith('"') && clean.endsWith('"')) {
+          clean = clean.substring(1, clean.length - 1).trim();
+        }
+        return clean;
+      });
     };
 
-    const headers = parseLine(lines[0]);
+    const headers = parseLine(lines[0]).map(h => h.trim());
     const rows = lines.slice(1).map(line => {
       const cells = parseLine(line);
       const rowObj = {};
@@ -253,7 +321,21 @@ const ImportExport = () => {
           
           {step === 1 && (
             <form onSubmit={handleUploadCSV}>
-              <div className="form-group" style={{ border: '2px dashed var(--border-color)', padding: '2rem', borderRadius: '8px', textAlign: 'center', backgroundColor: 'var(--background-color)', cursor: 'pointer' }}>
+              <div 
+                className={`drag-drop-zone ${isDragging ? 'dragging' : ''}`}
+                style={{
+                  border: isDragging ? '2px dashed var(--primary-color)' : '2px dashed var(--border-color)',
+                  padding: '2rem',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  backgroundColor: isDragging ? 'var(--primary-light)' : 'var(--background-color)',
+                  cursor: 'pointer',
+                  transition: 'all var(--transition-fast)'
+                }}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
                 <input
                   type="file"
                   id="csv-file"
@@ -261,14 +343,25 @@ const ImportExport = () => {
                   style={{ display: 'none' }}
                   onChange={handleFileChange}
                 />
-                <label htmlFor="csv-file" style={{ cursor: 'pointer' }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '0.5rem', color: 'var(--text-muted)' }}>⎗</div>
+                <label htmlFor="csv-file" style={{ cursor: 'pointer', display: 'block' }}>
+                  <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: isDragging ? 'var(--primary-color)' : 'var(--text-muted)' }}>⎗</div>
                   <strong>Click to browse files</strong> or drag a CSV file here
-                  {file && <div style={{ marginTop: '0.5rem', color: 'var(--primary-color)' }}>Selected: {file.name}</div>}
+                  {file ? (
+                    <div style={{ marginTop: '0.75rem', color: 'var(--success-color)', fontWeight: '600' }}>
+                      Selected: {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                    </div>
+                  ) : (
+                    <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      Supports standard UTF-8 CSV sheets
+                    </div>
+                  )}
                 </label>
               </div>
 
-              <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+              <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <button type="button" className="btn btn-secondary" onClick={handleDownloadTemplate} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>↓</span> Download CSV Template
+                </button>
                 <button type="submit" className="btn btn-primary" disabled={loading || !file}>
                   {loading ? 'Processing...' : 'Upload & Preview Mapping'}
                 </button>
@@ -280,33 +373,33 @@ const ImportExport = () => {
             <form onSubmit={handleValidateMapping}>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Map standard catalog headers to corresponding CSV fields.</p>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
                 <div>
                   <h4 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Core Fields</h4>
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>Product SKU *</label>
-                    <select className="form-input" value={mapping.sku} onChange={(e) => handleMappingChange('sku', e.target.value)} required>
+                    <select className="form-input" value={mapping.sku || ''} onChange={(e) => handleMappingChange('sku', e.target.value)} required>
                       <option value="">Select column...</option>
                       {csvHeaders.map(h => <option key={h} value={h}>{h}</option>)}
                     </select>
                   </div>
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>Product Name *</label>
-                    <select className="form-input" value={mapping.name} onChange={(e) => handleMappingChange('name', e.target.value)} required>
+                    <select className="form-input" value={mapping.name || ''} onChange={(e) => handleMappingChange('name', e.target.value)} required>
                       <option value="">Select column...</option>
                       {csvHeaders.map(h => <option key={h} value={h}>{h}</option>)}
                     </select>
                   </div>
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>Category</label>
-                    <select className="form-input" value={mapping.category} onChange={(e) => handleMappingChange('category', e.target.value)}>
+                    <select className="form-input" value={mapping.category || ''} onChange={(e) => handleMappingChange('category', e.target.value)}>
                       <option value="">Select column...</option>
                       {csvHeaders.map(h => <option key={h} value={h}>{h}</option>)}
                     </select>
                   </div>
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>Unit</label>
-                    <select className="form-input" value={mapping.unit} onChange={(e) => handleMappingChange('unit', e.target.value)}>
+                    <select className="form-input" value={mapping.unit || ''} onChange={(e) => handleMappingChange('unit', e.target.value)}>
                       <option value="">Select column...</option>
                       {csvHeaders.map(h => <option key={h} value={h}>{h}</option>)}
                     </select>
@@ -317,21 +410,21 @@ const ImportExport = () => {
                   <h4 style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Stock & Details</h4>
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>Min. Stock threshold</label>
-                    <select className="form-input" value={mapping.minimumStock} onChange={(e) => handleMappingChange('minimumStock', e.target.value)}>
+                    <select className="form-input" value={mapping.minimumStock || ''} onChange={(e) => handleMappingChange('minimumStock', e.target.value)}>
                       <option value="">Select column...</option>
                       {csvHeaders.map(h => <option key={h} value={h}>{h}</option>)}
                     </select>
                   </div>
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>Opening Stock Qty</label>
-                    <select className="form-input" value={mapping.openingStock} onChange={(e) => handleMappingChange('openingStock', e.target.value)}>
+                    <select className="form-input" value={mapping.openingStock || ''} onChange={(e) => handleMappingChange('openingStock', e.target.value)}>
                       <option value="">Select column...</option>
                       {csvHeaders.map(h => <option key={h} value={h}>{h}</option>)}
                     </select>
                   </div>
                   <div className="form-group">
                     <label className="form-label" style={{ fontSize: '0.75rem' }}>Warehouse Code (Required if opening stock exists)</label>
-                    <select className="form-input" value={mapping.warehouseCode} onChange={(e) => handleMappingChange('warehouseCode', e.target.value)}>
+                    <select className="form-input" value={mapping.warehouseCode || ''} onChange={(e) => handleMappingChange('warehouseCode', e.target.value)}>
                       <option value="">Select column...</option>
                       {csvHeaders.map(h => <option key={h} value={h}>{h}</option>)}
                     </select>

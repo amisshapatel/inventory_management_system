@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { PlusIcon } from '../components/Icons';
 import Modal from '../components/Modal';
+import { addNotification } from '../utils/notifications';
 
 const Transfers = () => {
   const { apiFetch, hasPermission } = useAuth();
@@ -32,7 +33,7 @@ const Transfers = () => {
   const [status, setStatus] = useState('Draft');
   const [items, setItems] = useState([{ productId: '', quantity: 1 }]);
 
-  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || '';
 
   const loadData = async () => {
     setLoading(true);
@@ -150,6 +151,7 @@ const Transfers = () => {
 
       if (res.success) {
         setSuccessMsg(`Stock transfer ${res.data.transferNumber} successfully created.`);
+        addNotification('Transfer Created', `Stock transfer ${res.data.transferNumber} has been created successfully.`);
         setIsAddOpen(false);
         loadData();
       }
@@ -169,6 +171,7 @@ const Transfers = () => {
       });
       if (res.success) {
         setSuccessMsg(`Transfer status updated to ${newStatus}. Warehouse stock rebalanced.`);
+        addNotification('Transfer Status Updated', `Transfer status has been updated to ${newStatus}. Warehouse stock rebalanced.`);
         if (isDetailOpen) setIsDetailOpen(false);
         loadData();
       }
@@ -293,20 +296,44 @@ const Transfers = () => {
           {/* Pagination */}
           <div className="pagination-bar">
             <span>Showing Page {page} of {totalPages}</span>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <button 
-                className="btn btn-secondary" 
+                className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.max(p - 1, 1))}
                 disabled={page === 1}
               >
-                Previous
+                &larr; Previous
               </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                .map((p, idx, arr) => {
+                  const items = [];
+                  if (idx > 0 && p - arr[idx - 1] > 1) {
+                    items.push(<span key={`ellipsis-${p}`} style={{ padding: '0 4px', color: 'var(--text-muted)' }}>...</span>);
+                  }
+                  items.push(
+                    <button
+                      key={p}
+                      className={`btn-pagination-number ${page === p ? 'active' : ''}`}
+                      onClick={() => setPage(p)}
+                      style={{
+                        minWidth: '34px',
+                        height: '34px',
+                        padding: '0',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {p}
+                    </button>
+                  );
+                  return items;
+                })}
               <button 
-                className="btn btn-secondary" 
+                className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.min(p + 1, totalPages))}
                 disabled={page === totalPages}
               >
-                Next
+                Next &rarr;
               </button>
             </div>
           </div>

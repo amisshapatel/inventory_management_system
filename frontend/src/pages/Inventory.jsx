@@ -10,9 +10,11 @@ const Inventory = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Filtering
+  // Filtering & Pagination
   const [search, setSearch] = useState('');
   const [selectedWarehouseId, setSelectedWarehouseId] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Manual Adjustment Modal State
   const [isAdjustOpen, setIsAdjustOpen] = useState(false);
@@ -31,16 +33,15 @@ const Inventory = () => {
         setWarehouses(whRes.data);
       }
 
-      // Build balance query
-      let queryStr = '/inventory';
-      const params = [];
-      if (selectedWarehouseId) params.push(`warehouseId=${selectedWarehouseId}`);
-      if (search) params.push(`search=${encodeURIComponent(search)}`);
-      if (params.length > 0) queryStr += `?${params.join('&')}`;
+      // Build balance query with pagination
+      let queryStr = `/inventory?page=${page}&limit=15`;
+      if (selectedWarehouseId) queryStr += `&warehouseId=${selectedWarehouseId}`;
+      if (search) queryStr += `&search=${encodeURIComponent(search)}`;
 
       const balRes = await apiFetch(queryStr);
       if (balRes.success) {
         setBalances(balRes.data);
+        setTotalPages(balRes.pages || 1);
       }
     } catch (err) {
       console.error(err);
@@ -52,11 +53,22 @@ const Inventory = () => {
 
   useEffect(() => {
     loadData();
-  }, [selectedWarehouseId]);
+  }, [page, selectedWarehouseId]);
+
+  const handleWarehouseChange = (e) => {
+    setSelectedWarehouseId(e.target.value);
+    if (page !== 1) {
+      setPage(1);
+    }
+  };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    loadData();
+    if (page === 1) {
+      loadData();
+    } else {
+      setPage(1);
+    }
   };
 
   const handleOpenAdjustModal = (balance) => {
@@ -132,7 +144,7 @@ const Inventory = () => {
             <select 
               className="form-input" 
               value={selectedWarehouseId} 
-              onChange={(e) => setSelectedWarehouseId(e.target.value)}
+              onChange={handleWarehouseChange}
             >
               <option value="">All Locations / Warehouses</option>
               {warehouses.map(w => (
@@ -196,6 +208,51 @@ const Inventory = () => {
               })}
             </tbody>
           </table>
+
+          {/* Pagination */}
+          <div className="pagination-bar">
+            <span>Showing Page {page} of {totalPages}</span>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <button 
+                className="btn btn-secondary btn-pagination" 
+                onClick={() => setPage(p => Math.max(p - 1, 1))}
+                disabled={page === 1}
+              >
+                &larr; Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                .map((p, idx, arr) => {
+                  const items = [];
+                  if (idx > 0 && p - arr[idx - 1] > 1) {
+                    items.push(<span key={`ellipsis-${p}`} style={{ padding: '0 4px', color: 'var(--text-muted)' }}>...</span>);
+                  }
+                  items.push(
+                    <button
+                      key={p}
+                      className={`btn-pagination-number ${page === p ? 'active' : ''}`}
+                      onClick={() => setPage(p)}
+                      style={{
+                        minWidth: '34px',
+                        height: '34px',
+                        padding: '0',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {p}
+                    </button>
+                  );
+                  return items;
+                })}
+              <button 
+                className="btn btn-secondary btn-pagination" 
+                onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+                disabled={page === totalPages}
+              >
+                Next &rarr;
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

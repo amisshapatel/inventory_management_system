@@ -102,3 +102,100 @@ export const updateNotificationSetting = async (req, res, next) => {
     next(error);
   }
 };
+
+export const seedNotificationSettings = async (req, res, next) => {
+  try {
+    const eventTypes = [
+      'low_stock',
+      'purchase_completed',
+      'sale_completed',
+      'stock_adjustment',
+      'stock_transfer',
+      'import_completed',
+      'import_failed'
+    ];
+
+    const createdSettings = [];
+    for (const eventType of eventTypes) {
+      const exists = await NotificationSetting.findOne({ eventType });
+      if (!exists) {
+        const setting = await NotificationSetting.create({
+          eventType,
+          enabled: ['low_stock', 'stock_transfer', 'import_failed'].includes(eventType),
+          recipients: ['admin@example.com']
+        });
+        createdSettings.push(setting);
+      }
+    }
+
+    // Return all notification settings
+    const allSettings = await NotificationSetting.find();
+
+    res.status(200).json({
+      success: true,
+      message: 'Notification settings seeded successfully',
+      data: allSettings
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const sendTestEmail = async (req, res, next) => {
+  try {
+    const { notificationId } = req.body;
+    
+    // Find the notification setting
+    const setting = await NotificationSetting.findById(notificationId);
+    if (!setting) {
+      res.status(404);
+      throw new Error('Notification setting not found');
+    }
+
+    if (!setting.recipients || setting.recipients.length === 0) {
+      res.status(400);
+      throw new Error('No recipients configured for this notification');
+    }
+
+    // Import the email service
+    const { triggerEmailAlert } = await import('../notifications/service.js');
+
+    // Create test data based on event type
+    const testData = {
+      low_stock: {
+        productName: 'Test Product',
+        sku: 'TEST-001',
+        warehouseId: null,
+        currentStock: 5,
+        minimumStock: 10
+      },
+      stock_transfer: {
+        transferNumber: 'TEST-001',
+        sourceName: 'Test Warehouse A',
+        destinationName: 'Test Warehouse B',
+        totalItems: 1
+      },
+      import_failed: {
+        errorMessage: 'Test error message for import failure'
+      }
+    };
+
+    const data = testData[setting.eventType] || {
+      message: 'Test notification for ' + setting.eventType
+    };
+
+    // Send the test email
+    await triggerEmailAlert(setting.eventType, data);
+
+    res.status(200).json({
+      success: true,
+      message: `Test email sent to ${setting.recipients.join(', ')} for ${setting.eventType}`,
+      data: {
+        recipients: setting.recipients,
+        eventType: setting.eventType
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};

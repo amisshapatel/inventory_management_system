@@ -8,6 +8,9 @@ export const getInventory = async (req, res, next) => {
   try {
     const warehouseId = req.query.warehouseId;
     const search = req.query.search || '';
+    const page = parseInt(req.query.page, 10);
+    const limit = parseInt(req.query.limit, 10) || 15;
+    const skip = page ? (page - 1) * limit : 0;
 
     const filter = {};
     if (warehouseId) {
@@ -26,16 +29,34 @@ export const getInventory = async (req, res, next) => {
       filter.productId = { $in: productIds };
     }
 
-    const balances = await InventoryBalance.find(filter)
-      .populate('productId', 'name sku category unit minimumStock customFields')
-      .populate('warehouseId', 'name code')
-      .sort({ updatedAt: -1 });
+    if (page) {
+      const count = await InventoryBalance.countDocuments(filter);
+      const balances = await InventoryBalance.find(filter)
+        .populate('productId', 'name sku category unit minimumStock customFields')
+        .populate('warehouseId', 'name code')
+        .sort({ updatedAt: -1 })
+        .skip(skip)
+        .limit(limit);
 
-    res.status(200).json({
-      success: true,
-      count: balances.length,
-      data: balances
-    });
+      res.status(200).json({
+        success: true,
+        count,
+        page,
+        pages: Math.ceil(count / limit),
+        data: balances
+      });
+    } else {
+      const balances = await InventoryBalance.find(filter)
+        .populate('productId', 'name sku category unit minimumStock customFields')
+        .populate('warehouseId', 'name code')
+        .sort({ updatedAt: -1 });
+
+      res.status(200).json({
+        success: true,
+        count: balances.length,
+        data: balances
+      });
+    }
   } catch (error) {
     next(error);
   }
