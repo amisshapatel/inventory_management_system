@@ -25,7 +25,13 @@ import settingsRoutes from '../backend/modules/settings/routes.js';
 dotenv.config();
 
 // Connect to MongoDB Database
-connectDB();
+let dbConnected = false;
+const ensureDBConnected = async () => {
+  if (!dbConnected) {
+    await connectDB();
+    dbConnected = true;
+  }
+};
 
 const app = express();
 
@@ -60,5 +66,8 @@ app.get('/', (req, res) => {
 // Centralized Error Handling Middleware
 app.use(errorHandler);
 
-// Export for Vercel serverless functions
-export default app;
+// Vercel serverless function handler
+export default async (req, res) => {
+  await ensureDBConnected();
+  return app(req, res);
+};
