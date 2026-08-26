@@ -32,9 +32,17 @@ const ProtectedLayout = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
+  const closeSidebar = () => {
+    const container = document.querySelector('.app-container');
+    if (container) {
+      container.classList.remove('sidebar-mobile-open');
+    }
+  };
+
   return (
     <div className="app-container">
       <Sidebar />
+      <div className="sidebar-overlay" onClick={closeSidebar}></div>
       <div className="main-workspace">
         <Header />
         <div className="content-area">

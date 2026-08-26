@@ -42,11 +42,23 @@ const Sidebar = () => {
     return hasPermission(item.permission);
   });
 
+  const closeSidebar = () => {
+    const container = document.querySelector('.app-container');
+    if (container) {
+      container.classList.remove('sidebar-mobile-open');
+    }
+  };
+
   return (
     <aside className="sidebar">
       <div className="logo-container">
-        <span className="logo-text">StockPilot</span>
-        <span className="logo-subtext">Warehouse A1</span>
+        <div>
+          <span className="logo-text">StockPilot</span>
+          <span className="logo-subtext">Warehouse A1</span>
+        </div>
+        <button className="sidebar-close-btn" onClick={closeSidebar} title="Close Menu">
+          &times;
+        </button>
       </div>
 
       <nav className="nav-list">
@@ -55,6 +67,7 @@ const Sidebar = () => {
             key={item.name}
             to={item.path}
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+            onClick={closeSidebar}
           >
             {item.icon}
             <span>{item.name}</span>

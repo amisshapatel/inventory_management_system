@@ -3,11 +3,27 @@ import { useAuth } from '../context/AuthContext';
 import { BellIcon, SearchIcon } from './Icons';
 import { getNotifications, clearNotifications as clearNotificationsUtil, initializeDemoNotifications } from '../utils/notifications';
 
+const MenuIcon = (props) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <line x1="4" x2="20" y1="12" y2="12" />
+    <line x1="4" x2="20" y1="6" y2="6" />
+    <line x1="4" x2="20" y1="18" y2="18" />
+  </svg>
+);
+
 const Header = () => {
   const { user } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const notificationRef = useRef(null);
+
+  const toggleSidebar = (e) => {
+    e.stopPropagation();
+    const container = document.querySelector('.app-container');
+    if (container) {
+      container.classList.toggle('sidebar-mobile-open');
+    }
+  };
 
   // Load notifications from localStorage
   useEffect(() => {
@@ -58,9 +74,14 @@ const Header = () => {
 
   return (
     <header className="app-header">
-      <div className="search-bar">
-        <SearchIcon style={{ width: '16px', color: '#64748b' }} />
-        <input type="text" placeholder="Search products, orders, or warehouses..." />
+      <div className="header-left">
+        <button className="menu-toggle-btn" onClick={toggleSidebar} title="Toggle Menu">
+          <MenuIcon style={{ width: '20px', height: '20px' }} />
+        </button>
+        <div className="search-bar">
+          <SearchIcon style={{ width: '16px', color: '#64748b' }} />
+          <input type="text" placeholder="Search products, orders, or warehouses..." />
+        </div>
       </div>
 
       <div className="header-actions">

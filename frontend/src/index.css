@@ -1541,4 +1541,149 @@ input:checked + .slider:before {
   color: var(--danger-color) !important;
 }
 
+/* Header Left Align */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+/* Mobile Sidebar Toggle Button */
+.menu-toggle-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text-dark);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: background-color var(--transition-fast);
+}
+.menu-toggle-btn:hover {
+  background-color: var(--background-color);
+}
+
+/* Mobile Sidebar Close Button */
+.sidebar-close-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  transition: all var(--transition-fast);
+  margin-left: auto;
+}
+.sidebar-close-btn:hover {
+  background-color: var(--background-color);
+  color: var(--danger-color);
+}
+
+/* Update Logo Container Flex */
+.logo-container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 2rem;
+  padding-left: 0.5rem;
+}
+
+/* Sidebar Backdrop Overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 99;
+  opacity: 0;
+  transition: opacity var(--transition-normal);
+  pointer-events: none;
+}
+
+/* Mobile Responsive Overrides */
+@media (max-width: 768px) {
+  .menu-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .sidebar-close-btn {
+    display: block;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-lg);
+    width: 280px;
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+  
+  .sidebar-mobile-open .sidebar-overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sidebar-mobile-open .sidebar {
+    transform: translateX(0);
+  }
+
+  .main-workspace {
+    margin-left: 0 !important;
+  }
+
+  .app-header {
+    padding: 0 1rem;
+  }
+  
+  .search-bar {
+    max-width: 220px;
+  }
+
+  .user-display {
+    display: none;
+  }
+
+  .stats-grid,
+  .dashboard-grid,
+  .settings-grid,
+  .form-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .page-title-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .page-title-section button {
+    width: 100%;
+  }
+
+  .modal-content {
+    width: 95% !important;
+    max-width: 100% !important;
+    margin: 1rem auto;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 
