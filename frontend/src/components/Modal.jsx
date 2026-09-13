@@ -1,4 +1,5 @@
 import React from 'react';
+import { XIcon } from './Icons';
 
 const Modal = ({ isOpen, onClose, title, children, footerButtons }) => {
   if (!isOpen) return null;
@@ -8,8 +9,8 @@ const Modal = ({ isOpen, onClose, title, children, footerButtons }) => {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h3 className="modal-title">{title}</h3>
-          <button className="close-btn" onClick={onClose}>
-            &times;
+          <button className="close-btn" onClick={onClose} title="Close dialog" aria-label="Close">
+            <XIcon />
           </button>
         </div>
 

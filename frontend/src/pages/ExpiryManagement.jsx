@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { Loader } from '../components/Loader';
+import { FilterIcon, ClockIcon } from '../components/Icons';
 
 const ExpiryManagement = () => {
   const { apiFetch } = useAuth();
@@ -92,7 +94,10 @@ const ExpiryManagement = () => {
       {/* Filter Options */}
       <div className="filter-card" style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <label className="form-label" style={{ marginBottom: 0 }}>Filter Status:</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--primary-color)' }}>
+            <FilterIcon style={{ width: '15px', height: '15px' }} />
+            <label className="form-label" style={{ marginBottom: 0, color: 'var(--text-dark)' }}>Filter Status:</label>
+          </div>
           <select 
             className="form-input" 
             style={{ width: '160px' }} 
@@ -106,7 +111,10 @@ const ExpiryManagement = () => {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <label className="form-label" style={{ marginBottom: 0 }}>Expiry Threshold Days:</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--primary-color)' }}>
+            <ClockIcon style={{ width: '15px', height: '15px' }} />
+            <label className="form-label" style={{ marginBottom: 0, color: 'var(--text-dark)' }}>Expiry Threshold Days:</label>
+          </div>
           <input 
             type="number" 
             className="form-input" 
@@ -121,7 +129,10 @@ const ExpiryManagement = () => {
 
       {/* List Table */}
       {loading ? (
-        <div className="loading-state">Scanning batch records for expiries...</div>
+        <Loader 
+          message="Scanning batch records for expiries..." 
+          subtitle="Evaluating item expiration dates, batch numbers, and shelf-life thresholds..." 
+        />
       ) : expiryItems.length === 0 ? (
         <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: 'var(--panel-background)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
           <span style={{ color: 'var(--text-muted)' }}>No expiring inventory found matching the filters.</span>

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { SearchIcon, RefreshCwIcon, AdjustIcon, ChevronLeftIcon, ChevronRightIcon, CheckIcon, XIcon, LowStockIcon } from '../components/Icons';
+import { Loader } from '../components/Loader';
 import Modal from '../components/Modal';
 
 const Inventory = () => {
@@ -122,6 +124,15 @@ const Inventory = () => {
           <h1 className="page-title">Inventory Control</h1>
           <p className="page-subtitle">Real-time stock levels across global warehouses.</p>
         </div>
+        <button 
+          className="btn btn-secondary action-btn-with-icon" 
+          onClick={loadData}
+          disabled={loading}
+          title="Refresh Stock Records"
+        >
+          <RefreshCwIcon style={{ width: '15px', height: '15px' }} className={loading ? 'spinner-icon' : ''} />
+          <span>Refresh</span>
+        </button>
       </div>
 
       {successMsg && <div className="alert-bar success">{successMsg}</div>}
@@ -153,13 +164,19 @@ const Inventory = () => {
             </select>
           </div>
 
-          <button type="submit" className="btn btn-secondary">Search</button>
+          <button type="submit" className="btn btn-secondary action-btn-with-icon">
+            <SearchIcon style={{ width: '15px', height: '15px' }} />
+            <span>Search</span>
+          </button>
         </form>
       </div>
 
       {/* Balances List Table */}
       {loading ? (
-        <div className="loading-state">Querying inventory stock levels...</div>
+        <Loader 
+          message="Querying inventory stock levels..." 
+          subtitle="Reconciling multi-warehouse quantities and active stock thresholds..." 
+        />
       ) : balances.length === 0 ? (
         <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: 'var(--panel-background)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
           <span style={{ color: 'var(--text-muted)' }}>No stock balances found. Add opening stock, create purchases, or check filters.</span>
@@ -182,7 +199,7 @@ const Inventory = () => {
               {balances.map((bal) => {
                 const isLow = bal.productId && bal.quantity <= bal.productId.minimumStock;
                 return (
-                  <tr key={bal._id}>
+                  <tr key={bal._id} className={isLow ? 'low-stock-row' : ''}>
                     <td style={{ fontWeight: '600', color: 'var(--primary-color)' }}>{bal.productId?.sku || 'N/A'}</td>
                     <td style={{ fontWeight: '500' }}>{bal.productId?.name || 'N/A'}</td>
                     <td>
@@ -193,15 +210,23 @@ const Inventory = () => {
                     <td>{bal.productId?.minimumStock || 0}</td>
                     <td>
                       <span className={`pill ${isLow ? 'danger' : 'success'}`}>
+                        {isLow && <LowStockIcon />}
                         {isLow ? 'Low Stock' : 'In Stock'}
                       </span>
                     </td>
                     <td>
-                      {hasPermission('stock.adjust') && (
-                        <button className="btn btn-text" onClick={() => handleOpenAdjustModal(bal)} style={{ padding: '2px 8px', color: 'var(--primary-color)' }}>
-                          Adjust Stock
-                        </button>
-                      )}
+                      <div className="action-btn-group">
+                        {hasPermission('stock.adjust') && (
+                          <button 
+                            className="btn-action btn-action-adjust" 
+                            onClick={() => handleOpenAdjustModal(bal)}
+                            title="Adjust stock balance"
+                          >
+                            <AdjustIcon />
+                            <span>Adjust Stock</span>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -217,8 +242,10 @@ const Inventory = () => {
                 className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.max(p - 1, 1))}
                 disabled={page === 1}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                &larr; Previous
+                <ChevronLeftIcon style={{ width: '14px', height: '14px' }} />
+                <span>Previous</span>
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
@@ -248,8 +275,10 @@ const Inventory = () => {
                 className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.min(p + 1, totalPages))}
                 disabled={page === totalPages}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                Next &rarr;
+                <span>Next</span>
+                <ChevronRightIcon style={{ width: '14px', height: '14px' }} />
               </button>
             </div>
           </div>
@@ -326,8 +355,14 @@ const Inventory = () => {
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-              <button type="button" className="btn btn-secondary" onClick={() => setIsAdjustOpen(false)}>Cancel</button>
-              <button type="submit" className="btn btn-primary">Apply Correction</button>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsAdjustOpen(false)}>
+                <XIcon style={{ width: '14px', height: '14px' }} />
+                <span>Cancel</span>
+              </button>
+              <button type="submit" className="btn btn-primary">
+                <CheckIcon style={{ width: '15px', height: '15px' }} />
+                <span>Apply Correction</span>
+              </button>
             </div>
           </form>
         )}

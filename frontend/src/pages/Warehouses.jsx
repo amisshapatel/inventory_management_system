@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { PlusIcon } from '../components/Icons';
+import { PlusIcon, EditIcon, TrashIcon, SaveIcon, XIcon } from '../components/Icons';
+import { Loader } from '../components/Loader';
 import Modal from '../components/Modal';
 
 const Warehouses = () => {
@@ -132,7 +133,10 @@ const Warehouses = () => {
 
       {/* Warehouse grid table */}
       {loading ? (
-        <div className="loading-state">Querying warehouse locations...</div>
+        <Loader 
+          message="Querying warehouse locations..." 
+          subtitle="Locating distribution facilities, storage zones, and hub statuses..." 
+        />
       ) : warehouses.length === 0 ? (
         <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: 'var(--panel-background)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
           <span style={{ color: 'var(--text-muted)' }}>No warehouse hubs registered. Click "Create Warehouse" to add locations.</span>
@@ -163,15 +167,25 @@ const Warehouses = () => {
                   </td>
                   <td>{new Date(wh.createdAt).toLocaleDateString()}</td>
                   <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div className="action-btn-group">
                       {hasPermission('warehouse.edit') && (
-                        <button className="btn btn-text" onClick={() => handleOpenEditModal(wh)} style={{ padding: '2px 8px', color: 'var(--primary-color)' }}>
-                          Edit
+                        <button 
+                          className="btn-action btn-action-edit" 
+                          onClick={() => handleOpenEditModal(wh)}
+                          title="Edit warehouse"
+                        >
+                          <EditIcon />
+                          <span>Edit</span>
                         </button>
                       )}
                       {hasPermission('warehouse.edit') && (
-                        <button className="btn btn-text" onClick={() => handleDeleteWarehouse(wh._id)} style={{ padding: '2px 8px', color: 'var(--danger-color)' }}>
-                          Delete
+                        <button 
+                          className="btn-action btn-action-delete" 
+                          onClick={() => handleDeleteWarehouse(wh._id)}
+                          title="Delete warehouse"
+                        >
+                          <TrashIcon />
+                          <span>Delete</span>
                         </button>
                       )}
                     </div>
@@ -236,8 +250,14 @@ const Warehouses = () => {
             </div>
             
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
-              <button type="button" className="btn btn-secondary" onClick={() => setIsAddOpen(false)}>Cancel</button>
-              <button type="submit" className="btn btn-primary">Create Warehouse</button>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsAddOpen(false)}>
+                <XIcon style={{ width: '14px', height: '14px' }} />
+                <span>Cancel</span>
+              </button>
+              <button type="submit" className="btn btn-primary">
+                <PlusIcon style={{ width: '15px', height: '15px' }} />
+                <span>Create Warehouse</span>
+              </button>
             </div>
           </div>
         </form>
@@ -293,8 +313,14 @@ const Warehouses = () => {
             </div>
             
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
-              <button type="button" className="btn btn-secondary" onClick={() => setIsEditOpen(false)}>Cancel</button>
-              <button type="submit" className="btn btn-primary">Update Warehouse</button>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsEditOpen(false)}>
+                <XIcon style={{ width: '14px', height: '14px' }} />
+                <span>Cancel</span>
+              </button>
+              <button type="submit" className="btn btn-primary">
+                <SaveIcon style={{ width: '15px', height: '15px' }} />
+                <span>Update Warehouse</span>
+              </button>
             </div>
           </div>
         </form>

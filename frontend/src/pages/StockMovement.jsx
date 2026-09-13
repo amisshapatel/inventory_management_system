@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { Loader } from '../components/Loader';
+import { SearchIcon, ChevronLeftIcon, ChevronRightIcon } from '../components/Icons';
 
 const StockMovement = () => {
   const { apiFetch } = useAuth();
@@ -117,13 +119,19 @@ const StockMovement = () => {
             </select>
           </div>
 
-          <button type="submit" className="btn btn-secondary">Search</button>
+          <button type="submit" className="btn btn-secondary action-btn-with-icon">
+            <SearchIcon style={{ width: '15px', height: '15px' }} />
+            <span>Search</span>
+          </button>
         </form>
       </div>
 
       {/* Movements Table */}
       {loading ? (
-        <div className="loading-state">Loading stock movement logs...</div>
+        <Loader 
+          message="Loading stock movement logs..." 
+          subtitle="Tracing inventory adjustments, receipts, and shipments across facilities..." 
+        />
       ) : movements.length === 0 ? (
         <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: 'var(--panel-background)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
           <span style={{ color: 'var(--text-muted)' }}>No stock movement records found.</span>
@@ -190,8 +198,10 @@ const StockMovement = () => {
                 className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.max(p - 1, 1))}
                 disabled={page === 1}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                &larr; Previous
+                <ChevronLeftIcon style={{ width: '14px', height: '14px' }} />
+                <span>Previous</span>
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
@@ -221,8 +231,10 @@ const StockMovement = () => {
                 className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.min(p + 1, totalPages))}
                 disabled={page === totalPages}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                Next &rarr;
+                <span>Next</span>
+                <ChevronRightIcon style={{ width: '14px', height: '14px' }} />
               </button>
             </div>
           </div>

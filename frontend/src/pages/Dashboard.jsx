@@ -9,8 +9,11 @@ import {
   TransfersIcon,
   WarehousesIcon,
   ExpiryIcon,
-  PlusIcon
+  PlusIcon,
+  TrendingUpIcon,
+  AlertTriangleIcon
 } from '../components/Icons';
+import { Loader } from '../components/Loader';
 
 const Dashboard = () => {
   const { apiFetch } = useAuth();
@@ -45,7 +48,24 @@ const Dashboard = () => {
   };
 
   if (loading) {
-    return <div className="loading-state">Loading dashboard analytics...</div>;
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div className="page-title-section">
+          <div>
+            <h1 className="page-title">Dashboard</h1>
+            <p className="page-subtitle">Overview of warehouse performance and stock status.</p>
+          </div>
+          <div className="date-badge">
+            {formatDate()}
+          </div>
+        </div>
+        <Loader 
+          message="Compiling warehouse telemetry..." 
+          subtitle="Calculating inventory valuation, stock movements, and operational alerts..." 
+          size="lg"
+        />
+      </div>
+    );
   }
 
   if (error) {
@@ -92,8 +112,9 @@ const Dashboard = () => {
             </div>
           </div>
           <span className="metric-value">{metrics.totalProducts}</span>
-          <span className="metric-trend up">
-            <span>↑ 4% this month</span>
+          <span className="metric-trend up" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+            <TrendingUpIcon style={{ width: '13px', height: '13px' }} />
+            <span>4% this month</span>
           </span>
         </div>
 
@@ -105,8 +126,9 @@ const Dashboard = () => {
             </div>
           </div>
           <span className="metric-value">{formatCurrency(metrics.inventoryValue)}</span>
-          <span className="metric-trend up">
-            <span>↑ 12% vs last year</span>
+          <span className="metric-trend up" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+            <TrendingUpIcon style={{ width: '13px', height: '13px' }} />
+            <span>12% vs last year</span>
           </span>
         </div>
 
@@ -204,7 +226,11 @@ const Dashboard = () => {
                   <div key={idx} className="alert-item-card">
                     <div className="alert-details">
                       <div className={`alert-badge-box ${alert.icon === 'warning' ? 'danger' : alert.icon === 'clock' ? 'warning' : 'info'}`}>
-                        <ExpiryIcon style={{ width: '20px' }} />
+                        {alert.icon === 'warning' ? (
+                          <AlertTriangleIcon style={{ width: '18px', height: '18px' }} />
+                        ) : (
+                          <ExpiryIcon style={{ width: '18px', height: '18px' }} />
+                        )}
                       </div>
                       <div>
                         <div className="alert-title">{alert.title}</div>

@@ -105,8 +105,10 @@ export const AuthProvider = ({ children }) => {
   // Helper to check if current user has a specific permission
   const hasPermission = (permission) => {
     if (!user) return false;
-    if (user.role === 'Admin') return true; // Admin override
-    return user.permissions && user.permissions.includes(permission);
+    const roleName = typeof user.role === 'object' ? user.role?.name : user.role;
+    if (roleName === 'Admin') return true; // Admin override
+    const perms = user.permissions || (typeof user.role === 'object' && user.role?.permissions) || [];
+    return Array.isArray(perms) && perms.includes(permission);
   };
 
   const value = {

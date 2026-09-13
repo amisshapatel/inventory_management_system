@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
+  BrandLogoIcon,
   DashboardIcon,
   ProductsIcon,
   InventoryIcon,
@@ -13,7 +14,8 @@ import {
   ReportsIcon,
   ImportExportIcon,
   UsersIcon,
-  SettingsIcon
+  SettingsIcon,
+  LogOutIcon
 } from './Icons';
 
 const Sidebar = () => {
@@ -52,9 +54,11 @@ const Sidebar = () => {
   return (
     <aside className="sidebar">
       <div className="logo-container">
-        <div>
+        <div className="sidebar-brand-wrapper">
+          <div className="sidebar-brand-icon">
+            <BrandLogoIcon size={34} />
+          </div>
           <span className="logo-text">StockPilot</span>
-          <span className="logo-subtext">Warehouse A1</span>
         </div>
         <button className="sidebar-close-btn" onClick={closeSidebar} title="Close Menu">
           &times;
@@ -76,8 +80,9 @@ const Sidebar = () => {
       </nav>
 
       <div className="sidebar-profile">
-        <div className="profile-avatar">
+        <div className="profile-avatar" style={{ position: 'relative' }}>
           {user.name ? user.name.split(' ').map(n => n[0]).join('') : 'U'}
+          <span className="avatar-online-dot"></span>
         </div>
         <div className="profile-info">
           <span className="profile-name">{user.name}</span>
@@ -85,10 +90,11 @@ const Sidebar = () => {
         </div>
         <button 
           onClick={logout} 
-          style={{ marginLeft: 'auto', fontSize: '0.8rem', color: '#dc3545', fontWeight: 'bold' }}
+          className="sidebar-exit-btn"
           title="Sign Out"
         >
-          Exit
+          <LogOutIcon style={{ width: '13px', height: '13px' }} />
+          <span>Exit</span>
         </button>
       </div>
     </aside>

@@ -1,5 +1,6 @@
 import User from './model.js';
 import Role from '../roles/model.js';
+import { DEFAULT_ROLES } from '../../config/constants.js';
 
 export const getUsers = async (req, res, next) => {
   try {
@@ -150,3 +151,112 @@ export const deleteUser = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getRoles = async (req, res, next) => {
+  try {
+    const roles = await Role.find();
+    const rolesWithCounts = await Promise.all(
+      roles.map(async (r) => {
+        const userCount = await User.countDocuments({ role: r._id });
+        return {
+          _id: r._id,
+          name: r.name,
+          permissions: r.permissions,
+          userCount,
+          createdAt: r.createdAt
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      data: rolesWithCounts
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateRolePermissions = async (req, res, next) => {
+  try {
+    const { roleName } = req.params;
+    const { permissions } = req.body;
+
+    if (!Array.isArray(permissions)) {
+      res.status(400);
+      throw new Error('Permissions must be an array of permission keys');
+    }
+
+    if (roleName === 'Admin') {
+      res.status(400);
+      throw new Error('Admin role permissions are permanent and cannot be modified');
+    }
+
+    let role = await Role.findOne({ name: roleName });
+    if (!role) {
+      role = await Role.create({
+        name: roleName,
+        permissions
+      });
+    } else {
+      role.permissions = permissions;
+      await role.save();
+    }
+
+    const userCount = await User.countDocuments({ role: role._id });
+
+    res.status(200).json({
+      success: true,
+      message: `Permissions for ${roleName} updated successfully`,
+      data: {
+        _id: role._id,
+        name: role.name,
+        permissions: role.permissions,
+        userCount,
+        createdAt: role.createdAt
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetRolePermissions = async (req, res, next) => {
+  try {
+    const { roleName } = req.params;
+    const defaultRole = DEFAULT_ROLES[roleName];
+
+    if (!defaultRole) {
+      res.status(404);
+      throw new Error(`Default configuration for role '${roleName}' not found`);
+    }
+
+    let role = await Role.findOne({ name: roleName });
+    if (!role) {
+      role = await Role.create({
+        name: roleName,
+        permissions: defaultRole.permissions
+      });
+    } else {
+      role.permissions = defaultRole.permissions;
+      await role.save();
+    }
+
+    const userCount = await User.countDocuments({ role: role._id });
+
+    res.status(200).json({
+      success: true,
+      message: `Role ${roleName} reset to default permissions`,
+      data: {
+        _id: role._id,
+        name: role.name,
+        permissions: role.permissions,
+        userCount,
+        createdAt: role.createdAt
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

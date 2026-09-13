@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { PlusIcon } from '../components/Icons';
+import { PlusIcon, ViewIcon, PackageCheckIcon, XCircleIcon, ChevronLeftIcon, ChevronRightIcon, XIcon } from '../components/Icons';
+import { Loader } from '../components/Loader';
 import Modal from '../components/Modal';
 import { addNotification } from '../utils/notifications';
 
@@ -190,7 +191,10 @@ const Sales = () => {
 
       {/* Sales list table */}
       {loading ? (
-        <div className="loading-state">Loading sales dashboard...</div>
+        <Loader 
+          message="Loading sales registry..." 
+          subtitle="Retrieving customer invoices, dispatched stock, and payment records..." 
+        />
       ) : sales.length === 0 ? (
         <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: 'var(--panel-background)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
           <span style={{ color: 'var(--text-muted)' }}>No sales logged yet. Click "New Sale Entry" to sell products.</span>
@@ -228,17 +232,32 @@ const Sales = () => {
                   </td>
                   <td>{new Date(sale.createdAt).toLocaleDateString()}</td>
                   <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button className="btn btn-text" onClick={() => handleViewSale(sale._id)} style={{ padding: '2px 8px' }}>
-                        Open details
+                    <div className="action-btn-group">
+                      <button 
+                        className="btn-action btn-action-view" 
+                        onClick={() => handleViewSale(sale._id)} 
+                        title="View details"
+                      >
+                        <ViewIcon />
+                        <span>View</span>
                       </button>
                       {sale.status === 'Draft' && hasPermission('sale.create') && (
                         <>
-                          <button className="btn btn-text" onClick={() => handleUpdateStatus(sale._id, 'Completed')} style={{ padding: '2px 8px', color: 'var(--success-color)' }}>
-                            Complete
+                          <button 
+                            className="btn-action btn-action-success" 
+                            onClick={() => handleUpdateStatus(sale._id, 'Completed')} 
+                            title="Complete & fulfill sale"
+                          >
+                            <PackageCheckIcon />
+                            <span>Fulfill</span>
                           </button>
-                          <button className="btn btn-text" onClick={() => handleUpdateStatus(sale._id, 'Cancelled')} style={{ padding: '2px 8px', color: 'var(--danger-color)' }}>
-                            Cancel
+                          <button 
+                            className="btn-action btn-action-cancel" 
+                            onClick={() => handleUpdateStatus(sale._id, 'Cancelled')} 
+                            title="Cancel sales order"
+                          >
+                            <XCircleIcon />
+                            <span>Cancel</span>
                           </button>
                         </>
                       )}
@@ -257,8 +276,10 @@ const Sales = () => {
                 className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.max(p - 1, 1))}
                 disabled={page === 1}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                &larr; Previous
+                <ChevronLeftIcon style={{ width: '14px', height: '14px' }} />
+                <span>Previous</span>
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
@@ -288,8 +309,10 @@ const Sales = () => {
                 className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.min(p + 1, totalPages))}
                 disabled={page === totalPages}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                Next &rarr;
+                <span>Next</span>
+                <ChevronRightIcon style={{ width: '14px', height: '14px' }} />
               </button>
             </div>
           </div>
@@ -412,8 +435,14 @@ const Sales = () => {
             </div>
             
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
-              <button type="button" className="btn btn-secondary" onClick={() => setIsAddOpen(false)}>Cancel</button>
-              <button type="submit" className="btn btn-primary">Process Invoice</button>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsAddOpen(false)}>
+                <XIcon style={{ width: '14px', height: '14px' }} />
+                <span>Cancel</span>
+              </button>
+              <button type="submit" className="btn btn-primary">
+                <PlusIcon style={{ width: '15px', height: '15px' }} />
+                <span>Process Invoice</span>
+              </button>
             </div>
           </div>
         </form>
@@ -478,15 +507,20 @@ const Sales = () => {
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
               {selectedSale.status === 'Draft' && hasPermission('sale.create') && (
                 <>
-                  <button className="btn btn-secondary" style={{ backgroundColor: '#dc3545', color: 'white' }} onClick={() => handleUpdateStatus(selectedSale._id, 'Cancelled')}>
-                    Cancel Order
+                  <button className="btn btn-action-cancel" style={{ padding: '8px 16px', fontSize: '0.85rem' }} onClick={() => handleUpdateStatus(selectedSale._id, 'Cancelled')}>
+                    <XCircleIcon style={{ width: '15px', height: '15px' }} />
+                    <span>Cancel Order</span>
                   </button>
                   <button className="btn btn-primary" onClick={() => handleUpdateStatus(selectedSale._id, 'Completed')}>
-                    Complete & Dispatch Stock
+                    <PackageCheckIcon style={{ width: '16px', height: '16px' }} />
+                    <span>Complete & Dispatch</span>
                   </button>
                 </>
               )}
-              <button type="button" className="btn btn-secondary" onClick={() => setIsDetailOpen(false)}>Close</button>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsDetailOpen(false)}>
+                <XIcon style={{ width: '14px', height: '14px' }} />
+                <span>Close</span>
+              </button>
             </div>
           </div>
         )}

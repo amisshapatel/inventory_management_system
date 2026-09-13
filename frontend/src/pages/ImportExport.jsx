@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { DownloadIcon, UploadIcon } from '../components/Icons';
+import { Spinner } from '../components/Loader';
 
 const ImportExport = () => {
   const { apiFetch } = useAuth();
@@ -515,8 +517,18 @@ const ImportExport = () => {
 
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                 <button type="button" className="btn btn-secondary" onClick={() => setStep(2)}>Adjust Mapping</button>
-                <button type="button" className="btn btn-primary" onClick={handleCommitImport} disabled={loading || summaryInfo.valid === 0}>
-                  {loading ? 'Importing...' : `Import ${summaryInfo.valid} Valid Product(s)`}
+                <button type="button" className="btn btn-primary btn-with-spinner" onClick={handleCommitImport} disabled={loading || summaryInfo.valid === 0}>
+                  {loading ? (
+                    <>
+                      <Spinner size={16} color="#ffffff" />
+                      <span>Importing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <UploadIcon style={{ width: '16px', height: '16px' }} />
+                      <span>Import {summaryInfo.valid} Valid Product(s)</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -529,8 +541,18 @@ const ImportExport = () => {
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>Download local backups of catalogs, warehouse sheets, or sales history ledger logs in standard format.</p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <button className="btn btn-secondary" style={{ justifyContent: 'center' }} onClick={handleExportProducts} disabled={loading}>
-              Export Products Catalog (.CSV)
+            <button className="btn btn-secondary action-btn-with-icon" style={{ justifyContent: 'center' }} onClick={handleExportProducts} disabled={loading}>
+              {loading ? (
+                <>
+                  <Spinner size={16} />
+                  <span>Generating CSV...</span>
+                </>
+              ) : (
+                <>
+                  <DownloadIcon style={{ width: '16px', height: '16px' }} />
+                  <span>Export Products Catalog (.CSV)</span>
+                </>
+              )}
             </button>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center' }}>
               Includes system attributes, custom fields definitions, and warehouse stocks balance.

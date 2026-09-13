@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { Loader } from '../components/Loader';
+import { FilterIcon } from '../components/Icons';
 
 const Reports = () => {
   const { apiFetch } = useAuth();
@@ -48,7 +50,10 @@ const Reports = () => {
       {/* Control Filters */}
       <div className="filter-card" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <label className="form-label" style={{ marginBottom: 0, fontWeight: '600' }}>Calculate Aging Status Based On:</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--primary-color)' }}>
+            <FilterIcon style={{ width: '16px', height: '16px' }} />
+            <label className="form-label" style={{ marginBottom: 0, fontWeight: '600', color: 'var(--text-dark)' }}>Calculate Aging Status Based On:</label>
+          </div>
           <select 
             className="form-input" 
             style={{ width: '220px' }} 
@@ -65,7 +70,10 @@ const Reports = () => {
 
       {/* Aging table list */}
       {loading ? (
-        <div className="loading-state">Aggregating aging tables and stock lifetimes...</div>
+        <Loader 
+          message="Aggregating aging tables..." 
+          subtitle="Analyzing stock dwell times, turnover velocity, and inactive product cohorts..." 
+        />
       ) : agingData.length === 0 ? (
         <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: 'var(--panel-background)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
           <span style={{ color: 'var(--text-muted)' }}>No aging data records found. Make sure products are seeded.</span>

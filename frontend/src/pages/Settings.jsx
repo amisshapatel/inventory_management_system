@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { SettingsIcon, BellIcon, ProductsIcon, TrashIcon } from '../components/Icons';
+import { SettingsIcon, BellIcon, ProductsIcon, TrashIcon, SaveIcon, SendIcon, PlusIcon } from '../components/Icons';
+import { Loader } from '../components/Loader';
 import { addNotification } from '../utils/notifications';
 
 const Settings = () => {
@@ -281,7 +282,12 @@ const Settings = () => {
   };
 
   if (loading && warehouses.length === 0) {
-    return <div className="loading-state">Loading configuration preferences...</div>;
+    return (
+      <Loader 
+        message="Loading configuration preferences..." 
+        subtitle="Retrieving system settings, custom schema fields, and notification policies..." 
+      />
+    );
   }
 
   return (
@@ -357,8 +363,9 @@ const Settings = () => {
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '0.5rem' }}>
-                <button type="submit" className="btn btn-primary" style={{ padding: '0.6rem 1.5rem' }}>
-                  Save Operational Settings
+                <button type="submit" className="btn btn-primary" style={{ padding: '0.6rem 1.5rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <SaveIcon style={{ width: '15px', height: '15px' }} />
+                  <span>Save Operational Settings</span>
                 </button>
               </div>
             </form>
@@ -420,13 +427,14 @@ const Settings = () => {
                         {n.enabled && (
                           <button 
                             type="button" 
-                            className="btn btn-text" 
-                            style={{ fontSize: '0.75rem', padding: '4px 8px', color: 'var(--primary-color)' }}
+                            className="btn-action btn-action-view" 
+                            style={{ fontSize: '0.75rem', padding: '3px 8px' }}
                             onClick={() => handleSendTestEmail(n._id)}
                             disabled={sendingTestEmail === n._id}
                             title="Send a test email to verify your email settings"
                           >
-                            {sendingTestEmail === n._id ? 'Sending...' : 'Test Email'}
+                            <SendIcon style={{ width: '12px', height: '12px' }} />
+                            <span>{sendingTestEmail === n._id ? 'Sending...' : 'Test Email'}</span>
                           </button>
                         )}
                       </div>
@@ -451,11 +459,12 @@ const Settings = () => {
                       <button 
                         type="button" 
                         className="btn btn-primary" 
-                        style={{ padding: '0 1.25rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+                        style={{ padding: '0 1.25rem', fontSize: '0.85rem', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                         onClick={() => handleUpdateNotification(n._id, { recipientsRaw: notifyRecipients[n._id] })}
                         disabled={savingEmail === n._id}
                       >
-                        {savingEmail === n._id ? 'Saving...' : 'Save Emails'}
+                        <SaveIcon style={{ width: '14px', height: '14px' }} />
+                        <span>{savingEmail === n._id ? 'Saving...' : 'Save Emails'}</span>
                       </button>
                     </div>
                   </div>
@@ -558,8 +567,9 @@ const Settings = () => {
                   </div>
                 </div>
 
-                <button type="submit" className="btn btn-primary" style={{ padding: '0.6rem 1.5rem' }}>
-                  Register Field Definition
+                <button type="submit" className="btn btn-primary" style={{ padding: '0.6rem 1.5rem', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <PlusIcon style={{ width: '15px', height: '15px' }} />
+                  <span>Register Field Definition</span>
                 </button>
               </div>
             </form>
@@ -581,12 +591,13 @@ const Settings = () => {
                       </div>
                       <button 
                         type="button" 
-                        className="attribute-delete-btn" 
-                        style={{ fontSize: '0.85rem', padding: '6px 12px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', borderRadius: '6px' }}
+                        className="btn-action btn-action-delete" 
+                        style={{ padding: '4px 8px' }}
                         onClick={() => handleDeleteCustomField(field._id)}
+                        title="Delete custom field"
                       >
-                        <TrashIcon style={{ width: '14px', height: '14px' }} />
-                        Delete
+                        <TrashIcon style={{ width: '13px', height: '13px' }} />
+                        <span>Delete</span>
                       </button>
                     </div>
                   ))}

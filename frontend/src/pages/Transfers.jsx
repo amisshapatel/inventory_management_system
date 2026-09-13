@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { PlusIcon } from '../components/Icons';
+import { PlusIcon, ViewIcon, CheckIcon, XCircleIcon, ChevronLeftIcon, ChevronRightIcon, XIcon, FileTextIcon } from '../components/Icons';
+import { Loader } from '../components/Loader';
 import Modal from '../components/Modal';
 import { addNotification } from '../utils/notifications';
 
@@ -239,7 +240,10 @@ const Transfers = () => {
 
       {/* Transfers table list */}
       {loading ? (
-        <div className="loading-state">Loading transfers ledger...</div>
+        <Loader 
+          message="Loading transfer manifests..." 
+          subtitle="Tracking inter-facility logistics, chain of custody, and in-transit shipments..." 
+        />
       ) : transfers.length === 0 ? (
         <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: 'var(--panel-background)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
           <span style={{ color: 'var(--text-muted)' }}>No transfers found. Click "Create Stock Transfer" to initialize a warehouse rebalance.</span>
@@ -272,17 +276,32 @@ const Transfers = () => {
                   </td>
                   <td>{new Date(trf.createdAt).toLocaleDateString()}</td>
                   <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button className="btn btn-text" onClick={() => handleViewTransfer(trf._id)} style={{ padding: '2px 8px' }}>
-                        View Details
+                    <div className="action-btn-group">
+                      <button 
+                        className="btn-action btn-action-view" 
+                        onClick={() => handleViewTransfer(trf._id)} 
+                        title="View details"
+                      >
+                        <ViewIcon />
+                        <span>View</span>
                       </button>
                       {trf.status === 'Draft' && hasPermission('stock.transfer') && (
                         <>
-                          <button className="btn btn-text" onClick={() => handleUpdateStatus(trf._id, 'Completed')} style={{ padding: '2px 8px', color: 'var(--success-color)' }}>
-                            Complete
+                          <button 
+                            className="btn-action btn-action-success" 
+                            onClick={() => handleUpdateStatus(trf._id, 'Completed')} 
+                            title="Complete transfer"
+                          >
+                            <CheckIcon />
+                            <span>Complete</span>
                           </button>
-                          <button className="btn btn-text" onClick={() => handleUpdateStatus(trf._id, 'Cancelled')} style={{ padding: '2px 8px', color: 'var(--danger-color)' }}>
-                            Cancel
+                          <button 
+                            className="btn-action btn-action-cancel" 
+                            onClick={() => handleUpdateStatus(trf._id, 'Cancelled')} 
+                            title="Cancel transfer"
+                          >
+                            <XCircleIcon />
+                            <span>Cancel</span>
                           </button>
                         </>
                       )}
@@ -301,8 +320,10 @@ const Transfers = () => {
                 className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.max(p - 1, 1))}
                 disabled={page === 1}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                &larr; Previous
+                <ChevronLeftIcon style={{ width: '14px', height: '14px' }} />
+                <span>Previous</span>
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
@@ -332,8 +353,10 @@ const Transfers = () => {
                 className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.min(p + 1, totalPages))}
                 disabled={page === totalPages}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                Next &rarr;
+                <span>Next</span>
+                <ChevronRightIcon style={{ width: '14px', height: '14px' }} />
               </button>
             </div>
           </div>
@@ -449,8 +472,14 @@ const Transfers = () => {
             </div>
             
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
-              <button type="button" className="btn btn-secondary" onClick={() => setIsAddOpen(false)}>Cancel</button>
-              <button type="submit" className="btn btn-primary">Process Transfer</button>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsAddOpen(false)}>
+                <XIcon style={{ width: '14px', height: '14px' }} />
+                <span>Cancel</span>
+              </button>
+              <button type="submit" className="btn btn-primary">
+                <PlusIcon style={{ width: '15px', height: '15px' }} />
+                <span>Process Transfer</span>
+              </button>
             </div>
           </div>
         </form>
@@ -523,9 +552,10 @@ const Transfers = () => {
                     target="_blank" 
                     rel="noreferrer"
                     className="btn btn-secondary" 
-                    style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', textDecoration: 'none', display: 'inline-block' }}
+                    style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
                   >
-                    View PDF
+                    <FileTextIcon style={{ width: '14px', height: '14px' }} />
+                    <span>View PDF</span>
                   </a>
                   <button 
                     className="btn btn-secondary" 
@@ -541,15 +571,20 @@ const Transfers = () => {
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
               {selectedTransfer.status === 'Draft' && hasPermission('stock.transfer') && (
                 <>
-                  <button className="btn btn-secondary" style={{ backgroundColor: '#dc3545', color: 'white' }} onClick={() => handleUpdateStatus(selectedTransfer._id, 'Cancelled')}>
-                    Cancel Transfer
+                  <button className="btn btn-action-cancel" style={{ padding: '8px 16px', fontSize: '0.85rem' }} onClick={() => handleUpdateStatus(selectedTransfer._id, 'Cancelled')}>
+                    <XCircleIcon style={{ width: '15px', height: '15px' }} />
+                    <span>Cancel Transfer</span>
                   </button>
                   <button className="btn btn-primary" onClick={() => handleUpdateStatus(selectedTransfer._id, 'Completed')}>
-                    Complete & Shift Stock
+                    <CheckIcon style={{ width: '15px', height: '15px' }} />
+                    <span>Complete & Shift Stock</span>
                   </button>
                 </>
               )}
-              <button type="button" className="btn btn-secondary" onClick={() => setIsDetailOpen(false)}>Close</button>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsDetailOpen(false)}>
+                <XIcon style={{ width: '14px', height: '14px' }} />
+                <span>Close</span>
+              </button>
             </div>
           </div>
         )}

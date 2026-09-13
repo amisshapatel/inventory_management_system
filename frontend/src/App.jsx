@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ScreenLoader } from './components/Loader';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Login from './pages/Login';
@@ -22,9 +23,10 @@ const ProtectedLayout = ({ children }) => {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontFamily: 'var(--font-title)', fontSize: '1.25rem', color: 'var(--primary-color)' }}>
-        Loading StockPilot...
-      </div>
+      <ScreenLoader 
+        message="Authenticating session..." 
+        subtitle="Synchronizing warehouse telemetry and roles..." 
+      />
     );
   }
 
@@ -57,7 +59,12 @@ const PublicLayout = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return null;
+    return (
+      <ScreenLoader 
+        message="Starting StockPilot..." 
+        subtitle="Verifying secure authentication channel..." 
+      />
+    );
   }
 
   if (user) {

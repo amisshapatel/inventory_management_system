@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { PlusIcon } from '../components/Icons';
+import { PlusIcon, SearchIcon, ViewIcon, EditIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, SaveIcon, XIcon } from '../components/Icons';
+import { Loader } from '../components/Loader';
 import Modal from '../components/Modal';
 
 const Products = () => {
@@ -277,13 +278,19 @@ const Products = () => {
             </select>
           </div>
 
-          <button type="submit" className="btn btn-secondary">Search</button>
+          <button type="submit" className="btn btn-secondary action-btn-with-icon">
+            <SearchIcon style={{ width: '15px', height: '15px' }} />
+            <span>Search</span>
+          </button>
         </form>
       </div>
 
       {/* Products Table */}
       {loading ? (
-        <div className="loading-state">Loading product database...</div>
+        <Loader 
+          message="Querying product catalog..." 
+          subtitle="Fetching active inventory records, categories, and SKU definitions..." 
+        />
       ) : products.length === 0 ? (
         <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: 'var(--panel-background)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
           <span style={{ color: 'var(--text-muted)' }}>No products found matching filters.</span>
@@ -325,18 +332,33 @@ const Products = () => {
                     </span>
                   </td>
                   <td>
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      <button className="btn btn-text" onClick={() => handleViewProduct(product)} style={{ padding: '2px 8px' }}>
-                        View
+                    <div className="action-btn-group">
+                      <button 
+                        className="btn-action btn-action-view" 
+                        onClick={() => handleViewProduct(product)}
+                        title="View details"
+                      >
+                        <ViewIcon />
+                        <span>View</span>
                       </button>
                       {hasPermission('product.edit') && (
-                        <button className="btn btn-text" onClick={() => handleOpenEditModal(product)} style={{ padding: '2px 8px', color: 'var(--primary-color)' }}>
-                          Edit
+                        <button 
+                          className="btn-action btn-action-edit" 
+                          onClick={() => handleOpenEditModal(product)}
+                          title="Edit product"
+                        >
+                          <EditIcon />
+                          <span>Edit</span>
                         </button>
                       )}
                       {hasPermission('product.delete') && (
-                        <button className="btn btn-text" onClick={() => handleDeleteProduct(product._id)} style={{ padding: '2px 8px', color: 'var(--danger-color)' }}>
-                          Delete
+                        <button 
+                          className="btn-action btn-action-delete" 
+                          onClick={() => handleDeleteProduct(product._id)}
+                          title="Delete product"
+                        >
+                          <TrashIcon />
+                          <span>Delete</span>
                         </button>
                       )}
                     </div>
@@ -354,8 +376,10 @@ const Products = () => {
                 className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.max(p - 1, 1))}
                 disabled={page === 1}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                &larr; Previous
+                <ChevronLeftIcon style={{ width: '14px', height: '14px' }} />
+                <span>Previous</span>
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
@@ -385,8 +409,10 @@ const Products = () => {
                 className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.min(p + 1, totalPages))}
                 disabled={page === totalPages}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                Next &rarr;
+                <span>Next</span>
+                <ChevronRightIcon style={{ width: '14px', height: '14px' }} />
               </button>
             </div>
           </div>
@@ -509,8 +535,14 @@ const Products = () => {
           )}
 
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setIsAddOpen(false)}>Cancel</button>
-            <button type="submit" className="btn btn-primary">Create Product</button>
+            <button type="button" className="btn btn-secondary" onClick={() => setIsAddOpen(false)}>
+              <XIcon style={{ width: '14px', height: '14px' }} />
+              <span>Cancel</span>
+            </button>
+            <button type="submit" className="btn btn-primary">
+              <PlusIcon style={{ width: '15px', height: '15px' }} />
+              <span>Create Product</span>
+            </button>
           </div>
         </form>
       </Modal>
@@ -641,8 +673,14 @@ const Products = () => {
           )}
 
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-            <button type="button" className="btn btn-secondary" onClick={() => setIsEditOpen(false)}>Cancel</button>
-            <button type="submit" className="btn btn-primary">Update Product</button>
+            <button type="button" className="btn btn-secondary" onClick={() => setIsEditOpen(false)}>
+              <XIcon style={{ width: '14px', height: '14px' }} />
+              <span>Cancel</span>
+            </button>
+            <button type="submit" className="btn btn-primary">
+              <SaveIcon style={{ width: '15px', height: '15px' }} />
+              <span>Update Product</span>
+            </button>
           </div>
         </form>
       </Modal>
@@ -725,7 +763,10 @@ const Products = () => {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-              <button type="button" className="btn btn-secondary" onClick={() => setIsDetailOpen(false)}>Close</button>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsDetailOpen(false)}>
+                <XIcon style={{ width: '14px', height: '14px' }} />
+                <span>Close</span>
+              </button>
             </div>
           </div>
         )}

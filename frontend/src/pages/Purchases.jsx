@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { PlusIcon } from '../components/Icons';
+import { PlusIcon, ViewIcon, PackageCheckIcon, XCircleIcon, ChevronLeftIcon, ChevronRightIcon, XIcon } from '../components/Icons';
+import { Loader } from '../components/Loader';
 import Modal from '../components/Modal';
 import { addNotification } from '../utils/notifications';
 
@@ -191,7 +192,10 @@ const Purchases = () => {
 
       {/* Purchase list table */}
       {loading ? (
-        <div className="loading-state">Loading purchases dashboard...</div>
+        <Loader 
+          message="Loading purchases ledger..." 
+          subtitle="Fetching incoming supplier orders, line items, and fulfillment statuses..." 
+        />
       ) : purchases.length === 0 ? (
         <div style={{ padding: '3rem', textAlign: 'center', backgroundColor: 'var(--panel-background)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
           <span style={{ color: 'var(--text-muted)' }}>No purchases recorded. Click "New Purchase Entry" to load vendor items.</span>
@@ -229,17 +233,32 @@ const Purchases = () => {
                   </td>
                   <td>{new Date(pur.createdAt).toLocaleDateString()}</td>
                   <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button className="btn btn-text" onClick={() => handleViewPurchase(pur._id)} style={{ padding: '2px 8px' }}>
-                        Open details
+                    <div className="action-btn-group">
+                      <button 
+                        className="btn-action btn-action-view" 
+                        onClick={() => handleViewPurchase(pur._id)} 
+                        title="View details"
+                      >
+                        <ViewIcon />
+                        <span>View</span>
                       </button>
                       {pur.status === 'Draft' && hasPermission('purchase.edit') && (
                         <>
-                          <button className="btn btn-text" onClick={() => handleUpdateStatus(pur._id, 'Completed')} style={{ padding: '2px 8px', color: 'var(--success-color)' }}>
-                            Complete
+                          <button 
+                            className="btn-action btn-action-success" 
+                            onClick={() => handleUpdateStatus(pur._id, 'Completed')} 
+                            title="Complete & receive stock"
+                          >
+                            <PackageCheckIcon />
+                            <span>Receive</span>
                           </button>
-                          <button className="btn btn-text" onClick={() => handleUpdateStatus(pur._id, 'Cancelled')} style={{ padding: '2px 8px', color: 'var(--danger-color)' }}>
-                            Cancel
+                          <button 
+                            className="btn-action btn-action-cancel" 
+                            onClick={() => handleUpdateStatus(pur._id, 'Cancelled')} 
+                            title="Cancel purchase order"
+                          >
+                            <XCircleIcon />
+                            <span>Cancel</span>
                           </button>
                         </>
                       )}
@@ -258,8 +277,10 @@ const Purchases = () => {
                 className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.max(p - 1, 1))}
                 disabled={page === 1}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                &larr; Previous
+                <ChevronLeftIcon style={{ width: '14px', height: '14px' }} />
+                <span>Previous</span>
               </button>
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
@@ -289,8 +310,10 @@ const Purchases = () => {
                 className="btn btn-secondary btn-pagination" 
                 onClick={() => setPage(p => Math.min(p + 1, totalPages))}
                 disabled={page === totalPages}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
               >
-                Next &rarr;
+                <span>Next</span>
+                <ChevronRightIcon style={{ width: '14px', height: '14px' }} />
               </button>
             </div>
           </div>
@@ -413,8 +436,14 @@ const Purchases = () => {
             </div>
             
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1.25rem' }}>
-              <button type="button" className="btn btn-secondary" onClick={() => setIsAddOpen(false)}>Cancel</button>
-              <button type="submit" className="btn btn-primary">Save Purchase</button>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsAddOpen(false)}>
+                <XIcon style={{ width: '14px', height: '14px' }} />
+                <span>Cancel</span>
+              </button>
+              <button type="submit" className="btn btn-primary">
+                <PlusIcon style={{ width: '15px', height: '15px' }} />
+                <span>Save Purchase</span>
+              </button>
             </div>
           </div>
         </form>
@@ -479,15 +508,20 @@ const Purchases = () => {
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
               {selectedPurchase.status === 'Draft' && hasPermission('purchase.edit') && (
                 <>
-                  <button className="btn btn-secondary" style={{ backgroundColor: '#dc3545', color: 'white' }} onClick={() => handleUpdateStatus(selectedPurchase._id, 'Cancelled')}>
-                    Cancel Order
+                  <button className="btn btn-action-cancel" style={{ padding: '8px 16px', fontSize: '0.85rem' }} onClick={() => handleUpdateStatus(selectedPurchase._id, 'Cancelled')}>
+                    <XCircleIcon style={{ width: '15px', height: '15px' }} />
+                    <span>Cancel Order</span>
                   </button>
                   <button className="btn btn-primary" onClick={() => handleUpdateStatus(selectedPurchase._id, 'Completed')}>
-                    Complete & Add Stock
+                    <PackageCheckIcon style={{ width: '16px', height: '16px' }} />
+                    <span>Complete & Add Stock</span>
                   </button>
                 </>
               )}
-              <button type="button" className="btn btn-secondary" onClick={() => setIsDetailOpen(false)}>Close</button>
+              <button type="button" className="btn btn-secondary" onClick={() => setIsDetailOpen(false)}>
+                <XIcon style={{ width: '14px', height: '14px' }} />
+                <span>Close</span>
+              </button>
             </div>
           </div>
         )}
