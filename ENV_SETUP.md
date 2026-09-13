@@ -6,21 +6,20 @@
 
 #### Database Configuration
 ```
-MONGO_URI=mongodb+srv://amisha130120_db_user:uFanCFUMfcCsNfD8@ac-8xj7gk9-shard-00-00.w3cjevz.mongodb.net:27017,ac-8xj7gk9-shard-00-01.w3cjevz.mongodb.net:27017,ac-8xj7gk9-shard-00-02.w3cjevz.mongodb.net:27017/stockpilot?ssl=true&replicaSet=atlas-yxeai5-shard-0&authSource=admin&appName=Cluster0
-```
+MONGO_URI=
 
 #### Authentication
 ```
-JWT_SECRET=stockpilot_secret_key_123456789_abcdef_gxyz
+JWT_SECRET=
 ```
 
 #### Email Configuration (SMTP)
 ```
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=amisha130120@gmail.com
-SMTP_PASS=hvcqxhvnajtqghfu
-SMTP_FROM=amisha130120@gmail.com
+SMTP_HOST=
+SMTP_PORT=
+SMTP_USER=
+SMTP_PASS=
+SMTP_FROM=
 ```
 
 #### Frontend URL (Update after deployment)
