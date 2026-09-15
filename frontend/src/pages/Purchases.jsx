@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { PlusIcon, ViewIcon, PackageCheckIcon, XCircleIcon, ChevronLeftIcon, ChevronRightIcon, XIcon } from '../components/Icons';
+import { PlusIcon, ViewIcon, PackageCheckIcon, XCircleIcon, XIcon } from '../components/Icons';
 import { Loader } from '../components/Loader';
 import Modal from '../components/Modal';
 import { addNotification } from '../utils/notifications';
@@ -17,10 +17,6 @@ const Purchases = () => {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
-
-  // Pagination
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
   // Modals state
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -40,13 +36,12 @@ const Purchases = () => {
       const whRes = await apiFetch('/warehouses');
       if (whRes.success) setWarehouses(whRes.data.filter(w => w.status === 'Active'));
 
-      const prodRes = await apiFetch('/products?limit=1000');
+      const prodRes = await apiFetch('/products');
       if (prodRes.success) setProducts(prodRes.data.filter(p => p.status === 'Active'));
 
-      const purRes = await apiFetch(`/purchases?page=${page}&limit=15`);
+      const purRes = await apiFetch('/purchases');
       if (purRes.success) {
         setPurchases(purRes.data);
-        setTotalPages(purRes.pages);
       }
     } catch (err) {
       console.error(err);
@@ -58,7 +53,7 @@ const Purchases = () => {
 
   useEffect(() => {
     loadData();
-  }, [page]);
+  }, []);
 
   useEffect(() => {
     const action = searchParams.get('action');
@@ -268,55 +263,11 @@ const Purchases = () => {
               ))}
             </tbody>
           </table>
+        </div>
 
-          {/* Pagination */}
-          <div className="pagination-bar">
-            <span>Showing Page {page} of {totalPages}</span>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <button 
-                className="btn btn-secondary btn-pagination" 
-                onClick={() => setPage(p => Math.max(p - 1, 1))}
-                disabled={page === 1}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-              >
-                <ChevronLeftIcon style={{ width: '14px', height: '14px' }} />
-                <span>Previous</span>
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
-                .map((p, idx, arr) => {
-                  const items = [];
-                  if (idx > 0 && p - arr[idx - 1] > 1) {
-                    items.push(<span key={`ellipsis-${p}`} style={{ padding: '0 4px', color: 'var(--text-muted)' }}>...</span>);
-                  }
-                  items.push(
-                    <button
-                      key={p}
-                      className={`btn-pagination-number ${page === p ? 'active' : ''}`}
-                      onClick={() => setPage(p)}
-                      style={{
-                        minWidth: '34px',
-                        height: '34px',
-                        padding: '0',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {p}
-                    </button>
-                  );
-                  return items;
-                })}
-              <button 
-                className="btn btn-secondary btn-pagination" 
-                onClick={() => setPage(p => Math.min(p + 1, totalPages))}
-                disabled={page === totalPages}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-              >
-                <span>Next</span>
-                <ChevronRightIcon style={{ width: '14px', height: '14px' }} />
-              </button>
-            </div>
-          </div>
+        {/* Results Count */}
+        <div className="pagination-bar">
+          <span>Showing {purchases.length} purchases</span>
         </div>
       )}
 

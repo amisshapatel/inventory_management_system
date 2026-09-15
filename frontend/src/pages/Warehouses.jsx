@@ -195,6 +195,11 @@ const Warehouses = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Results Count */}
+        <div className="pagination-bar">
+          <span>Showing {warehouses.length} warehouses</span>
+        </div>
       )}
 
       {/* CREATE MODAL */}

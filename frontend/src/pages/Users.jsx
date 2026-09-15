@@ -1046,12 +1046,17 @@ const Users = () => {
                     })}
                   </tbody>
                 </table>
-              </div>
+            </div>
+
+            {/* Results Count */}
+            <div className="pagination-bar">
+              <span>Showing {filteredModels.length} models</span>
+            </div>
 
               {/* Bottom Matrix Action Footer */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', padding: '0.5rem 0.25rem', flexWrap: 'wrap', gap: '1rem' }}>
                 <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                  Active Matrix: <strong>{selectedRole}</strong> has <strong>{(rolePermissionsMap[selectedRole] || []).length}</strong> of {ALL_SYSTEM_PERMISSIONS.length} privileges configured.
+                  <strong>{selectedRole}</strong> has <strong>{(rolePermissionsMap[selectedRole] || []).length}</strong> of {ALL_SYSTEM_PERMISSIONS.length} privileges configured.
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -1190,6 +1195,11 @@ const Users = () => {
                   </tbody>
                 </table>
               </div>
+
+              {/* Results Count */}
+              <div className="pagination-bar">
+                <span>Showing {roles.length} roles</span>
+              </div>
             </div>
           )}
 
@@ -1203,74 +1213,81 @@ const Users = () => {
                   <span style={{ color: 'var(--text-muted)' }}>No other users registered. Click "Add User Account".</span>
                 </div>
               ) : (
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Profile Name</th>
-                      <th>Email Address</th>
-                      <th>Assigned Role</th>
-                      <th>Permissions Granted</th>
-                      <th>Account Status</th>
-                      <th>Created Date</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((u) => {
-                      const uRoleName = u.role?.name || u.role || 'Staff';
-                      const badgeClass = uRoleName.toLowerCase();
-                      const userPerms = u.role?.permissions || rolePermissionsMap[uRoleName] || [];
-                      
-                      return (
-                        <tr key={u._id}>
-                          <td style={{ fontWeight: '600' }}>{u.name}</td>
-                          <td>{u.email}</td>
-                          <td>
-                            <span className={`role-pill ${badgeClass}`}>
-                              {uRoleName}
-                            </span>
-                          </td>
-                          <td>
-                            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                              {uRoleName === 'Admin' ? '18 / 18 (Full Access)' : `${userPerms.length} allowed`}
-                            </span>
-                          </td>
-                          <td>
-                            <span className={`pill ${u.status === 'Active' ? 'success' : 'danger'}`}>
-                              {u.status}
-                            </span>
-                          </td>
-                          <td>{new Date(u.createdAt).toLocaleDateString()}</td>
-                          <td>
-                            <div className="action-btn-group">
-                              {hasPermission('user.manage') && (
-                                <button 
-                                  className="btn-action btn-action-edit" 
-                                  onClick={() => handleOpenEditModal(u)} 
-                                  title="Edit user"
-                                >
-                                  <EditIcon />
-                                  <span>Edit</span>
-                                </button>
-                              )}
-                              {hasPermission('user.manage') && u.email !== 'admin@example.com' && (
-                                <button 
-                                  className="btn-action btn-action-delete" 
-                                  onClick={() => handleDeleteUser(u._id)} 
-                                  title="Delete user"
-                                >
-                                  <TrashIcon />
-                                  <span>Delete</span>
-                                </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                <>
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Profile Name</th>
+                        <th>Email Address</th>
+                        <th>Assigned Role</th>
+                        <th>Permissions Granted</th>
+                        <th>Account Status</th>
+                        <th>Created Date</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {users.map((u) => {
+                        const uRoleName = u.role?.name || u.role || 'Staff';
+                        const badgeClass = uRoleName.toLowerCase();
+                        const userPerms = u.role?.permissions || rolePermissionsMap[uRoleName] || [];
+                        
+                        return (
+                          <tr key={u._id}>
+                            <td style={{ fontWeight: '600' }}>{u.name}</td>
+                            <td>{u.email}</td>
+                            <td>
+                              <span className={`role-pill ${badgeClass}`}>
+                                {uRoleName}
+                              </span>
+                            </td>
+                            <td>
+                              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                {uRoleName === 'Admin' ? '18 / 18 (Full Access)' : `${userPerms.length} allowed`}
+                              </span>
+                            </td>
+                            <td>
+                              <span className={`pill ${u.status === 'Active' ? 'success' : 'danger'}`}>
+                                {u.status}
+                              </span>
+                            </td>
+                            <td>{new Date(u.createdAt).toLocaleDateString()}</td>
+                            <td>
+                              <div className="action-btn-group">
+                                {hasPermission('user.manage') && (
+                                  <button 
+                                    className="btn-action btn-action-edit" 
+                                    onClick={() => handleOpenEditModal(u)} 
+                                    title="Edit user"
+                                  >
+                                    <EditIcon />
+                                    <span>Edit</span>
+                                  </button>
+                                )}
+                                {hasPermission('user.manage') && u.email !== 'admin@example.com' && (
+                                  <button 
+                                    className="btn-action btn-action-delete" 
+                                    onClick={() => handleDeleteUser(u._id)} 
+                                    title="Delete user"
+                                  >
+                                    <TrashIcon />
+                                    <span>Delete</span>
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </>
               )}
+
+              {/* Results Count */}
+              <div className="pagination-bar">
+                <span>Showing {users.length} users</span>
+              </div>
             </div>
           )}
         </>

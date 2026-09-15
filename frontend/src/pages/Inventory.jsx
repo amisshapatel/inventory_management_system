@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { SearchIcon, RefreshCwIcon, AdjustIcon, ChevronLeftIcon, ChevronRightIcon, CheckIcon, XIcon, LowStockIcon } from '../components/Icons';
+import { SearchIcon, RefreshCwIcon, AdjustIcon, CheckIcon, XIcon, LowStockIcon } from '../components/Icons';
 import { Loader } from '../components/Loader';
 import Modal from '../components/Modal';
 
@@ -12,11 +12,9 @@ const Inventory = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Filtering & Pagination
+  // Filtering
   const [search, setSearch] = useState('');
   const [selectedWarehouseId, setSelectedWarehouseId] = useState('');
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
   // Manual Adjustment Modal State
   const [isAdjustOpen, setIsAdjustOpen] = useState(false);
@@ -35,15 +33,14 @@ const Inventory = () => {
         setWarehouses(whRes.data);
       }
 
-      // Build balance query with pagination
-      let queryStr = `/inventory?page=${page}&limit=15`;
-      if (selectedWarehouseId) queryStr += `&warehouseId=${selectedWarehouseId}`;
-      if (search) queryStr += `&search=${encodeURIComponent(search)}`;
+      // Build balance query without pagination
+      let queryStr = `/inventory`;
+      if (selectedWarehouseId) queryStr += `?warehouseId=${selectedWarehouseId}`;
+      if (search) queryStr += `${selectedWarehouseId ? '&' : '?'}search=${encodeURIComponent(search)}`;
 
       const balRes = await apiFetch(queryStr);
       if (balRes.success) {
         setBalances(balRes.data);
-        setTotalPages(balRes.pages || 1);
       }
     } catch (err) {
       console.error(err);
@@ -55,22 +52,15 @@ const Inventory = () => {
 
   useEffect(() => {
     loadData();
-  }, [page, selectedWarehouseId]);
+  }, [selectedWarehouseId]);
 
   const handleWarehouseChange = (e) => {
     setSelectedWarehouseId(e.target.value);
-    if (page !== 1) {
-      setPage(1);
-    }
   };
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    if (page === 1) {
-      loadData();
-    } else {
-      setPage(1);
-    }
+    loadData();
   };
 
   const handleOpenAdjustModal = (balance) => {
@@ -233,55 +223,11 @@ const Inventory = () => {
               })}
             </tbody>
           </table>
+        </div>
 
-          {/* Pagination */}
-          <div className="pagination-bar">
-            <span>Showing Page {page} of {totalPages}</span>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <button 
-                className="btn btn-secondary btn-pagination" 
-                onClick={() => setPage(p => Math.max(p - 1, 1))}
-                disabled={page === 1}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-              >
-                <ChevronLeftIcon style={{ width: '14px', height: '14px' }} />
-                <span>Previous</span>
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
-                .map((p, idx, arr) => {
-                  const items = [];
-                  if (idx > 0 && p - arr[idx - 1] > 1) {
-                    items.push(<span key={`ellipsis-${p}`} style={{ padding: '0 4px', color: 'var(--text-muted)' }}>...</span>);
-                  }
-                  items.push(
-                    <button
-                      key={p}
-                      className={`btn-pagination-number ${page === p ? 'active' : ''}`}
-                      onClick={() => setPage(p)}
-                      style={{
-                        minWidth: '34px',
-                        height: '34px',
-                        padding: '0',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {p}
-                    </button>
-                  );
-                  return items;
-                })}
-              <button 
-                className="btn btn-secondary btn-pagination" 
-                onClick={() => setPage(p => Math.min(p + 1, totalPages))}
-                disabled={page === totalPages}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-              >
-                <span>Next</span>
-                <ChevronRightIcon style={{ width: '14px', height: '14px' }} />
-              </button>
-            </div>
-          </div>
+        {/* Results Count */}
+        <div className="pagination-bar">
+          <span>Showing {balances.length} inventory items</span>
         </div>
       )}
 

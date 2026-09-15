@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { PlusIcon, SearchIcon, ViewIcon, EditIcon, TrashIcon, ChevronLeftIcon, ChevronRightIcon, SaveIcon, XIcon } from '../components/Icons';
+import { PlusIcon, SearchIcon, ViewIcon, EditIcon, TrashIcon, SaveIcon, XIcon } from '../components/Icons';
 import { Loader } from '../components/Loader';
 import Modal from '../components/Modal';
 
@@ -16,9 +16,7 @@ const Products = () => {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Pagination & Filtering
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  // Filtering
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [status, setStatus] = useState('');
@@ -51,16 +49,15 @@ const Products = () => {
         setCustomFieldDefs(fieldsRes.data);
       }
 
-      // Build product list endpoint query
-      let queryStr = `/products?page=${page}&limit=10`;
-      if (search) queryStr += `&search=${encodeURIComponent(search)}`;
-      if (category) queryStr += `&category=${encodeURIComponent(category)}`;
-      if (status) queryStr += `&status=${status}`;
+      // Build product list endpoint query (no pagination)
+      let queryStr = `/products`;
+      if (search) queryStr += `?search=${encodeURIComponent(search)}`;
+      if (category) queryStr += `${search ? '&' : '?'}category=${encodeURIComponent(category)}`;
+      if (status) queryStr += `${search || category ? '&' : '?'}status=${status}`;
 
       const prodRes = await apiFetch(queryStr);
       if (prodRes.success) {
         setProducts(prodRes.data);
-        setTotalPages(prodRes.pages);
       }
     } catch (err) {
       console.error(err);
@@ -72,7 +69,7 @@ const Products = () => {
 
   useEffect(() => {
     loadData();
-  }, [page, category, status]);
+  }, [category, status]);
 
   // Check if navigate parameter exists to trigger add action immediately
   useEffect(() => {
@@ -84,7 +81,6 @@ const Products = () => {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    setPage(1);
     loadData();
   };
 
@@ -278,7 +274,7 @@ const Products = () => {
             </select>
           </div>
 
-          <button type="submit" className="btn btn-secondary action-btn-with-icon">
+          <button type="submit" className="btn btn-secondary action-btn-with-icon" style={{ height: '38px', padding: '0.6rem 0.8rem' }}>
             <SearchIcon style={{ width: '15px', height: '15px' }} />
             <span>Search</span>
           </button>
@@ -367,55 +363,11 @@ const Products = () => {
               ))}
             </tbody>
           </table>
+        </div>
 
-          {/* Pagination */}
-          <div className="pagination-bar">
-            <span>Showing Page {page} of {totalPages}</span>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <button 
-                className="btn btn-secondary btn-pagination" 
-                onClick={() => setPage(p => Math.max(p - 1, 1))}
-                disabled={page === 1}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-              >
-                <ChevronLeftIcon style={{ width: '14px', height: '14px' }} />
-                <span>Previous</span>
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
-                .map((p, idx, arr) => {
-                  const items = [];
-                  if (idx > 0 && p - arr[idx - 1] > 1) {
-                    items.push(<span key={`ellipsis-${p}`} style={{ padding: '0 4px', color: 'var(--text-muted)' }}>...</span>);
-                  }
-                  items.push(
-                    <button
-                      key={p}
-                      className={`btn-pagination-number ${page === p ? 'active' : ''}`}
-                      onClick={() => setPage(p)}
-                      style={{
-                        minWidth: '34px',
-                        height: '34px',
-                        padding: '0',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {p}
-                    </button>
-                  );
-                  return items;
-                })}
-              <button 
-                className="btn btn-secondary btn-pagination" 
-                onClick={() => setPage(p => Math.min(p + 1, totalPages))}
-                disabled={page === totalPages}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-              >
-                <span>Next</span>
-                <ChevronRightIcon style={{ width: '14px', height: '14px' }} />
-              </button>
-            </div>
-          </div>
+        {/* Results Count */}
+        <div className="pagination-bar">
+          <span>Showing {products.length} products</span>
         </div>
       )}
 
