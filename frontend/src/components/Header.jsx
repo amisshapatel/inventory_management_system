@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useSidebar } from '../context/SidebarContext';
 import { BellIcon, SearchIcon } from './Icons';
 import { getNotifications, clearNotifications as clearNotificationsUtil, initializeDemoNotifications } from '../utils/notifications';
 
@@ -13,17 +14,10 @@ const MenuIcon = (props) => (
 
 const Header = () => {
   const { user } = useAuth();
+  const { toggleSidebar, isSidebarOpen } = useSidebar();
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const notificationRef = useRef(null);
-
-  const toggleSidebar = (e) => {
-    e.stopPropagation();
-    const container = document.querySelector('.app-container');
-    if (container) {
-      container.classList.toggle('sidebar-mobile-open');
-    }
-  };
 
   // Load notifications from localStorage
   useEffect(() => {
@@ -33,9 +27,10 @@ const Header = () => {
 
   // Listen for notification updates
   useEffect(() => {
-    const handleNotificationAdded = (event) => {
+    const handleNotificationAdded = () => {
       setNotifications(getNotifications());
     };
+
 
     const handleNotificationsCleared = () => {
       setNotifications([]);
@@ -75,7 +70,13 @@ const Header = () => {
   return (
     <header className="app-header">
       <div className="header-left">
-        <button className="menu-toggle-btn" onClick={toggleSidebar} title="Toggle Menu">
+        <button 
+          className="menu-toggle-btn" 
+          onClick={toggleSidebar} 
+          title={isSidebarOpen ? "Collapse sidebar (Ctrl+B)" : "Expand sidebar (Ctrl+B)"}
+          aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          aria-expanded={isSidebarOpen}
+        >
           <MenuIcon style={{ width: '20px', height: '20px' }} />
         </button>
         <div className="search-bar">
@@ -133,10 +134,6 @@ const Header = () => {
           <div style={{ position: 'relative', width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #0b5ed7, #38bdf8)', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.85rem', boxShadow: '0 2px 6px rgba(11, 94, 215, 0.25)' }}>
             {user.name ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2) : 'U'}
             <span className="avatar-online-dot"></span>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '0.72rem', color: '#64748b', lineHeight: 1.1 }}>Active Account</span>
-            <span style={{ fontWeight: '600', fontSize: '0.88rem', color: 'var(--text-dark)' }}>{user.name || 'User'}</span>
           </div>
         </div>
       </div>

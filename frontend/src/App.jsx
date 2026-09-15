@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SidebarProvider, useSidebar } from './context/SidebarContext';
 import { ScreenLoader } from './components/Loader';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
@@ -18,6 +19,35 @@ import ImportExport from './pages/ImportExport';
 import Users from './pages/Users';
 import Settings from './pages/Settings';
 
+const ProtectedLayoutInner = ({ children }) => {
+  const { isSidebarOpen, isMobile, closeSidebar } = useSidebar();
+
+  const containerClasses = [
+    'app-container',
+    !isSidebarOpen && !isMobile ? 'sidebar-collapsed' : '',
+    isSidebarOpen && isMobile ? 'sidebar-mobile-open' : ''
+  ].filter(Boolean).join(' ');
+
+  return (
+    <div className={containerClasses}>
+      <Sidebar />
+      <div 
+        className="sidebar-overlay" 
+        onClick={closeSidebar}
+        role="button"
+        tabIndex={0}
+        aria-label="Close sidebar overlay"
+      />
+      <div className="main-workspace">
+        <Header />
+        <div className="content-area">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ProtectedLayout = ({ children }) => {
   const { user, loading } = useAuth();
 
@@ -34,29 +64,18 @@ const ProtectedLayout = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  const closeSidebar = () => {
-    const container = document.querySelector('.app-container');
-    if (container) {
-      container.classList.remove('sidebar-mobile-open');
-    }
-  };
-
   return (
-    <div className="app-container">
-      <Sidebar />
-      <div className="sidebar-overlay" onClick={closeSidebar}></div>
-      <div className="main-workspace">
-        <Header />
-        <div className="content-area">
-          {children}
-        </div>
-      </div>
-    </div>
+    <SidebarProvider>
+      <ProtectedLayoutInner>
+        {children}
+      </ProtectedLayoutInner>
+    </SidebarProvider>
   );
 };
 
 const PublicLayout = ({ children }) => {
   const { user, loading } = useAuth();
+
 
   if (loading) {
     return (

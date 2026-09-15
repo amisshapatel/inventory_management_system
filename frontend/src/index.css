@@ -30,6 +30,7 @@
   --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -2px rgba(0,0,0,0.02);
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
+  --transition-sidebar: 0.48s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 * {
@@ -91,6 +92,8 @@ input, select, textarea {
 .app-container {
   display: flex;
   min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* Sidebar Layout */
@@ -106,6 +109,9 @@ input, select, textarea {
   left: 0;
   z-index: 100;
   padding: 1.5rem 1rem;
+  overflow: visible;
+  transition: transform var(--transition-sidebar);
+  will-change: transform;
 }
 
 .logo-container {
@@ -113,6 +119,9 @@ input, select, textarea {
   flex-direction: column;
   margin-bottom: 2rem;
   padding-left: 0.5rem;
+  overflow: visible;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .logo-text {
@@ -215,7 +224,23 @@ input, select, textarea {
   flex-direction: column;
   min-height: 100vh;
   overflow: visible;
+  width: calc(100% - var(--sidebar-width));
+  box-sizing: border-box;
+  transition: margin-left var(--transition-sidebar), width var(--transition-sidebar);
+  will-change: margin-left, width;
 }
+
+/* Sidebar Collapsed State (Desktop) */
+.sidebar-collapsed .sidebar {
+  transform: translateX(-100%);
+  box-shadow: none;
+}
+
+.sidebar-collapsed .main-workspace {
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+
 
 /* Header Area */
 .app-header {
@@ -230,6 +255,9 @@ input, select, textarea {
   top: 0;
   z-index: 90;
   overflow: visible;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .search-bar {
@@ -240,6 +268,7 @@ input, select, textarea {
   padding: 0.5rem 1rem;
   border-radius: 8px;
   width: 350px;
+  flex-shrink: 0;
 }
 
 .search-bar input {
@@ -253,6 +282,8 @@ input, select, textarea {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  flex-shrink: 0;
+  min-width: fit-content;
 }
 
 .notification-btn {
@@ -428,6 +459,8 @@ input, select, textarea {
   overflow: visible;
   flex-wrap: wrap;
   gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Filter Card Styling */
@@ -1591,40 +1624,61 @@ input:checked + .slider:before {
   align-items: center;
   gap: 1rem;
   flex: 1;
+  min-width: 0;
+  overflow: visible;
 }
 
-/* Mobile Sidebar Toggle Button */
+/* Sidebar Toggle Button (Header) */
 .menu-toggle-btn {
-  display: none;
-  background: none;
-  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel-background);
+  border: 1px solid var(--border-color);
   color: var(--text-dark);
   cursor: pointer;
-  padding: 0.5rem;
+  width: 38px;
+  height: 38px;
   border-radius: 8px;
-  transition: background-color var(--transition-fast);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 .menu-toggle-btn:hover {
-  background-color: var(--background-color);
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  border-color: rgba(37, 99, 235, 0.25);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+  transform: translateY(-1px);
+}
+.menu-toggle-btn:active {
+  transform: translateY(0) scale(0.96);
 }
 
-/* Mobile Sidebar Close Button */
+/* Sidebar Close / Collapse Button (Inside Sidebar Header) */
 .sidebar-close-btn {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 1.8rem;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
   color: var(--text-muted);
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   transition: all var(--transition-fast);
   margin-left: auto;
+  flex-shrink: 0;
 }
 .sidebar-close-btn:hover {
-  background-color: var(--background-color);
-  color: var(--danger-color);
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  border-color: rgba(37, 99, 235, 0.25);
+  transform: scale(1.05);
+}
+.sidebar-close-btn:active {
+  transform: scale(0.95);
 }
 
 /* Update Logo Container Flex */
@@ -1649,7 +1703,7 @@ input:checked + .slider:before {
   backdrop-filter: blur(4px);
   z-index: 99;
   opacity: 0;
-  transition: opacity var(--transition-normal);
+  transition: opacity var(--transition-sidebar);
   pointer-events: none;
 }
 
@@ -1659,6 +1713,14 @@ input:checked + .slider:before {
   body, html, #root, .app-container {
     max-width: 100% !important;
     overflow-x: hidden !important;
+  }
+
+  .app-header {
+    padding: 0 1rem !important;
+  }
+
+  .search-bar {
+    width: 200px !important;
   }
   
   .main-workspace {
@@ -1688,14 +1750,10 @@ input:checked + .slider:before {
     align-items: center;
     justify-content: center;
   }
-  
-  .sidebar-close-btn {
-    display: block;
-  }
 
   .sidebar {
     transform: translateX(-100%);
-    transition: transform var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--transition-sidebar);
     box-shadow: var(--shadow-lg);
     width: 280px;
   }
@@ -2260,6 +2318,8 @@ input:checked + .slider:before {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  overflow: visible;
+  width: 100%;
 }
 
 .sidebar-brand-icon {

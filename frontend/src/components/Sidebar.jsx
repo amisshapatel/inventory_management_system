@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useSidebar } from '../context/SidebarContext';
 import {
   BrandLogoIcon,
   DashboardIcon,
@@ -20,6 +21,7 @@ import {
 
 const Sidebar = () => {
   const { user, logout, hasPermission } = useAuth();
+  const { closeSidebar, isMobile } = useSidebar();
 
   if (!user) return null;
 
@@ -44,15 +46,14 @@ const Sidebar = () => {
     return hasPermission(item.permission);
   });
 
-  const closeSidebar = () => {
-    const container = document.querySelector('.app-container');
-    if (container) {
-      container.classList.remove('sidebar-mobile-open');
+  const handleNavClick = () => {
+    if (isMobile) {
+      closeSidebar();
     }
   };
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" aria-label="Main Navigation">
       <div className="logo-container">
         <div className="sidebar-brand-wrapper">
           <div className="sidebar-brand-icon">
@@ -60,9 +61,6 @@ const Sidebar = () => {
           </div>
           <span className="logo-text">StockPilot</span>
         </div>
-        <button className="sidebar-close-btn" onClick={closeSidebar} title="Close Menu">
-          &times;
-        </button>
       </div>
 
       <nav className="nav-list">
@@ -71,7 +69,7 @@ const Sidebar = () => {
             key={item.name}
             to={item.path}
             className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            onClick={closeSidebar}
+            onClick={handleNavClick}
           >
             {item.icon}
             <span>{item.name}</span>
