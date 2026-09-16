@@ -1084,6 +1084,8 @@ select.form-input {
   border: 1px solid var(--border-color);
   border-radius: 12px;
   box-shadow: var(--shadow-sm);
+  max-height: 600px;
+  overflow-y: auto;
   overflow-x: auto;
   margin-bottom: 1rem;
   position: relative;
