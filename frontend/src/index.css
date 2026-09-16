@@ -1084,12 +1084,10 @@ select.form-input {
   border: 1px solid var(--border-color);
   border-radius: 12px;
   box-shadow: var(--shadow-sm);
-  max-height: none;
-  overflow: visible;
+  overflow-x: auto;
   margin-bottom: 1rem;
   position: relative;
   width: 100%;
-  overflow-x: auto;
 }
 
 .table-container {
@@ -1171,7 +1169,7 @@ select.form-input {
 
 /* Buttons style */
 .btn {
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 0.8rem;
   border-radius: 8px;
   font-size: 0.85rem;
   font-weight: 600;
@@ -1179,6 +1177,7 @@ select.form-input {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  height: auto;
 }
 
 .btn-primary {
