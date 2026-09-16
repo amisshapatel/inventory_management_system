@@ -244,74 +244,76 @@ const Transfers = () => {
           <span style={{ color: 'var(--text-muted)' }}>No transfers found. Click "Create Stock Transfer" to initialize a warehouse rebalance.</span>
         </div>
       ) : (
-        <div className="table-card">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Transfer No.</th>
-                <th>Source WH</th>
-                <th>Destination WH</th>
-                <th>Items count</th>
-                <th>Status</th>
-                <th>Date Logged</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transfers.map((trf) => (
-                <tr key={trf._id}>
-                  <td style={{ fontWeight: '700', color: 'var(--primary-color)' }}>{trf.transferNumber}</td>
-                  <td>{trf.sourceWarehouseId?.name} <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>({trf.sourceWarehouseId?.code})</span></td>
-                  <td>{trf.destinationWarehouseId?.name} <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>({trf.destinationWarehouseId?.code})</span></td>
-                  <td>{trf.items?.length || 0} items</td>
-                  <td>
-                    <span className={`pill ${trf.status === 'Completed' ? 'success' : trf.status === 'Cancelled' ? 'danger' : 'warning'}`}>
-                      {trf.status}
-                    </span>
-                  </td>
-                  <td>{new Date(trf.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <div className="action-btn-group">
-                      <button 
-                        className="btn-action btn-action-view" 
-                        onClick={() => handleViewTransfer(trf._id)} 
-                        title="View details"
-                      >
-                        <ViewIcon />
-                        <span>View</span>
-                      </button>
-                      {trf.status === 'Draft' && hasPermission('stock.transfer') && (
-                        <>
-                          <button 
-                            className="btn-action btn-action-success" 
-                            onClick={() => handleUpdateStatus(trf._id, 'Completed')} 
-                            title="Complete transfer"
-                          >
-                            <CheckIcon />
-                            <span>Complete</span>
-                          </button>
-                          <button 
-                            className="btn-action btn-action-cancel" 
-                            onClick={() => handleUpdateStatus(trf._id, 'Cancelled')} 
-                            title="Cancel transfer"
-                          >
-                            <XCircleIcon />
-                            <span>Cancel</span>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
+        <>
+          <div className="table-card">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Transfer No.</th>
+                  <th>Source WH</th>
+                  <th>Destination WH</th>
+                  <th>Items count</th>
+                  <th>Status</th>
+                  <th>Date Logged</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {transfers.map((trf) => (
+                  <tr key={trf._id}>
+                    <td style={{ fontWeight: '700', color: 'var(--primary-color)' }}>{trf.transferNumber}</td>
+                    <td>{trf.sourceWarehouseId?.name} <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>({trf.sourceWarehouseId?.code})</span></td>
+                    <td>{trf.destinationWarehouseId?.name} <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>({trf.destinationWarehouseId?.code})</span></td>
+                    <td>{trf.items?.length || 0} items</td>
+                    <td>
+                      <span className={`pill ${trf.status === 'Completed' ? 'success' : trf.status === 'Cancelled' ? 'danger' : 'warning'}`}>
+                        {trf.status}
+                      </span>
+                    </td>
+                    <td>{new Date(trf.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <div className="action-btn-group">
+                        <button 
+                          className="btn-action btn-action-view" 
+                          onClick={() => handleViewTransfer(trf._id)} 
+                          title="View details"
+                        >
+                          <ViewIcon />
+                          <span>View</span>
+                        </button>
+                        {trf.status === 'Draft' && hasPermission('stock.transfer') && (
+                          <>
+                            <button 
+                              className="btn-action btn-action-success" 
+                              onClick={() => handleUpdateStatus(trf._id, 'Completed')} 
+                              title="Complete transfer"
+                            >
+                              <CheckIcon />
+                              <span>Complete</span>
+                            </button>
+                            <button 
+                              className="btn-action btn-action-cancel" 
+                              onClick={() => handleUpdateStatus(trf._id, 'Cancelled')} 
+                              title="Cancel transfer"
+                            >
+                              <XCircleIcon />
+                              <span>Cancel</span>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Results Count */}
-        <div className="pagination-bar">
-          <span>Showing {transfers.length} transfers</span>
-        </div>
+          {/* Results Count */}
+          <div className="pagination-bar">
+            <span>Showing {transfers.length} transfers</span>
+          </div>
+        </>
       )}
 
       {/* CREATE TRANSFER MODAL */}

@@ -195,79 +195,81 @@ const Sales = () => {
           <span style={{ color: 'var(--text-muted)' }}>No sales logged yet. Click "New Sale Entry" to sell products.</span>
         </div>
       ) : (
-        <div className="table-card">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Sale No.</th>
-                <th>Customer Name</th>
-                <th>Source Warehouse</th>
-                <th>Items Sold</th>
-                <th>Notes</th>
-                <th>Status</th>
-                <th>Sale Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sales.map((sale) => (
-                <tr key={sale._id}>
-                  <td style={{ fontWeight: '700', color: 'var(--primary-color)' }}>{sale.saleNumber}</td>
-                  <td>{sale.customerName || 'Anonymous Customer'}</td>
-                  <td>
-                    <span style={{ fontWeight: '500' }}>{sale.warehouseId?.name}</span>{' '}
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>({sale.warehouseId?.code})</span>
-                  </td>
-                  <td>{sale.items?.length || 0} items</td>
-                  <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{sale.notes || '-'}</td>
-                  <td>
-                    <span className={`pill ${sale.status === 'Completed' ? 'success' : sale.status === 'Cancelled' ? 'danger' : 'warning'}`}>
-                      {sale.status}
-                    </span>
-                  </td>
-                  <td>{new Date(sale.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <div className="action-btn-group">
-                      <button 
-                        className="btn-action btn-action-view" 
-                        onClick={() => handleViewSale(sale._id)} 
-                        title="View details"
-                      >
-                        <ViewIcon />
-                        <span>View</span>
-                      </button>
-                      {sale.status === 'Draft' && hasPermission('sale.create') && (
-                        <>
-                          <button 
-                            className="btn-action btn-action-success" 
-                            onClick={() => handleUpdateStatus(sale._id, 'Completed')} 
-                            title="Complete & fulfill sale"
-                          >
-                            <PackageCheckIcon />
-                            <span>Fulfill</span>
-                          </button>
-                          <button 
-                            className="btn-action btn-action-cancel" 
-                            onClick={() => handleUpdateStatus(sale._id, 'Cancelled')} 
-                            title="Cancel sales order"
-                          >
-                            <XCircleIcon />
-                            <span>Cancel</span>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
+        <>
+          <div className="table-card">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Sale No.</th>
+                  <th>Customer Name</th>
+                  <th>Source Warehouse</th>
+                  <th>Items Sold</th>
+                  <th>Notes</th>
+                  <th>Status</th>
+                  <th>Sale Date</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {sales.map((sale) => (
+                  <tr key={sale._id}>
+                    <td style={{ fontWeight: '700', color: 'var(--primary-color)' }}>{sale.saleNumber}</td>
+                    <td>{sale.customerName || 'Anonymous Customer'}</td>
+                    <td>
+                      <span style={{ fontWeight: '500' }}>{sale.warehouseId?.name}</span>{' '}
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>({sale.warehouseId?.code})</span>
+                    </td>
+                    <td>{sale.items?.length || 0} items</td>
+                    <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{sale.notes || '-'}</td>
+                    <td>
+                      <span className={`pill ${sale.status === 'Completed' ? 'success' : sale.status === 'Cancelled' ? 'danger' : 'warning'}`}>
+                        {sale.status}
+                      </span>
+                    </td>
+                    <td>{new Date(sale.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <div className="action-btn-group">
+                        <button 
+                          className="btn-action btn-action-view" 
+                          onClick={() => handleViewSale(sale._id)} 
+                          title="View details"
+                        >
+                          <ViewIcon />
+                          <span>View</span>
+                        </button>
+                        {sale.status === 'Draft' && hasPermission('sale.create') && (
+                          <>
+                            <button 
+                              className="btn-action btn-action-success" 
+                              onClick={() => handleUpdateStatus(sale._id, 'Completed')} 
+                              title="Complete & fulfill sale"
+                            >
+                              <PackageCheckIcon />
+                              <span>Fulfill</span>
+                            </button>
+                            <button 
+                              className="btn-action btn-action-cancel" 
+                              onClick={() => handleUpdateStatus(sale._id, 'Cancelled')} 
+                              title="Cancel sales order"
+                            >
+                              <XCircleIcon />
+                              <span>Cancel</span>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Results Count */}
-        <div className="pagination-bar">
-          <span>Showing {sales.length} sales</span>
-        </div>
+          {/* Results Count */}
+          <div className="pagination-bar">
+            <span>Showing {sales.length} sales</span>
+          </div>
+        </>
       )}
 
       {/* CREATE SALE ENTRY MODAL */}

@@ -172,63 +172,65 @@ const Inventory = () => {
           <span style={{ color: 'var(--text-muted)' }}>No stock balances found. Add opening stock, create purchases, or check filters.</span>
         </div>
       ) : (
-        <div className="table-card">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Product SKU</th>
-                <th>Product Name</th>
-                <th>Warehouse</th>
-                <th>On Hand Qty</th>
-                <th>Min. Stock</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {balances.map((bal) => {
-                const isLow = bal.productId && bal.quantity <= bal.productId.minimumStock;
-                return (
-                  <tr key={bal._id} className={isLow ? 'low-stock-row' : ''}>
-                    <td style={{ fontWeight: '600', color: 'var(--primary-color)' }}>{bal.productId?.sku || 'N/A'}</td>
-                    <td style={{ fontWeight: '500' }}>{bal.productId?.name || 'N/A'}</td>
-                    <td>
-                      <span style={{ fontWeight: '600' }}>{bal.warehouseId?.name}</span>{' '}
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>({bal.warehouseId?.code})</span>
-                    </td>
-                    <td style={{ fontWeight: '700' }}>{bal.quantity} {bal.productId?.unit}</td>
-                    <td>{bal.productId?.minimumStock || 0}</td>
-                    <td>
-                      <span className={`pill ${isLow ? 'danger' : 'success'}`}>
-                        {isLow && <LowStockIcon />}
-                        {isLow ? 'Low Stock' : 'In Stock'}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="action-btn-group">
-                        {hasPermission('stock.adjust') && (
-                          <button 
-                            className="btn-action btn-action-adjust" 
-                            onClick={() => handleOpenAdjustModal(bal)}
-                            title="Adjust stock balance"
-                          >
-                            <AdjustIcon />
-                            <span>Adjust Stock</span>
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <>
+          <div className="table-card">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Product SKU</th>
+                  <th>Product Name</th>
+                  <th>Warehouse</th>
+                  <th>On Hand Qty</th>
+                  <th>Min. Stock</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {balances.map((bal) => {
+                  const isLow = bal.productId && bal.quantity <= bal.productId.minimumStock;
+                  return (
+                    <tr key={bal._id} className={isLow ? 'low-stock-row' : ''}>
+                      <td style={{ fontWeight: '600', color: 'var(--primary-color)' }}>{bal.productId?.sku || 'N/A'}</td>
+                      <td style={{ fontWeight: '500' }}>{bal.productId?.name || 'N/A'}</td>
+                      <td>
+                        <span style={{ fontWeight: '600' }}>{bal.warehouseId?.name}</span>{' '}
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>({bal.warehouseId?.code})</span>
+                      </td>
+                      <td style={{ fontWeight: '700' }}>{bal.quantity} {bal.productId?.unit}</td>
+                      <td>{bal.productId?.minimumStock || 0}</td>
+                      <td>
+                        <span className={`pill ${isLow ? 'danger' : 'success'}`}>
+                          {isLow && <LowStockIcon />}
+                          {isLow ? 'Low Stock' : 'In Stock'}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="action-btn-group">
+                          {hasPermission('stock.adjust') && (
+                            <button 
+                              className="btn-action btn-action-adjust" 
+                              onClick={() => handleOpenAdjustModal(bal)}
+                              title="Adjust stock balance"
+                            >
+                              <AdjustIcon />
+                              <span>Adjust Stock</span>
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Results Count */}
-        <div className="pagination-bar">
-          <span>Showing {balances.length} inventory items</span>
-        </div>
+          {/* Results Count */}
+          <div className="pagination-bar">
+            <span>Showing {balances.length} inventory items</span>
+          </div>
+        </>
       )}
 
       {/* ADJUSTMENT MODAL */}

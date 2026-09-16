@@ -142,64 +142,66 @@ const Warehouses = () => {
           <span style={{ color: 'var(--text-muted)' }}>No warehouse hubs registered. Click "Create Warehouse" to add locations.</span>
         </div>
       ) : (
-        <div className="table-card">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Warehouse Code</th>
-                <th>Warehouse Name</th>
-                <th>Address</th>
-                <th>Status</th>
-                <th>Date Added</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {warehouses.map((wh) => (
-                <tr key={wh._id}>
-                  <td style={{ fontWeight: '700', color: 'var(--primary-color)' }}>{wh.code}</td>
-                  <td style={{ fontWeight: '500' }}>{wh.name}</td>
-                  <td>{wh.address || 'No address specified'}</td>
-                  <td>
-                    <span className={`pill ${wh.status === 'Active' ? 'success' : 'danger'}`}>
-                      {wh.status}
-                    </span>
-                  </td>
-                  <td>{new Date(wh.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <div className="action-btn-group">
-                      {hasPermission('warehouse.edit') && (
-                        <button 
-                          className="btn-action btn-action-edit" 
-                          onClick={() => handleOpenEditModal(wh)}
-                          title="Edit warehouse"
-                        >
-                          <EditIcon />
-                          <span>Edit</span>
-                        </button>
-                      )}
-                      {hasPermission('warehouse.edit') && (
-                        <button 
-                          className="btn-action btn-action-delete" 
-                          onClick={() => handleDeleteWarehouse(wh._id)}
-                          title="Delete warehouse"
-                        >
-                          <TrashIcon />
-                          <span>Delete</span>
-                        </button>
-                      )}
-                    </div>
-                  </td>
+        <>
+          <div className="table-card">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Warehouse Code</th>
+                  <th>Warehouse Name</th>
+                  <th>Address</th>
+                  <th>Status</th>
+                  <th>Date Added</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {warehouses.map((wh) => (
+                  <tr key={wh._id}>
+                    <td style={{ fontWeight: '700', color: 'var(--primary-color)' }}>{wh.code}</td>
+                    <td style={{ fontWeight: '500' }}>{wh.name}</td>
+                    <td>{wh.address || 'No address specified'}</td>
+                    <td>
+                      <span className={`pill ${wh.status === 'Active' ? 'success' : 'danger'}`}>
+                        {wh.status}
+                      </span>
+                    </td>
+                    <td>{new Date(wh.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <div className="action-btn-group">
+                        {hasPermission('warehouse.edit') && (
+                          <button 
+                            className="btn-action btn-action-edit" 
+                            onClick={() => handleOpenEditModal(wh)}
+                            title="Edit warehouse"
+                          >
+                            <EditIcon />
+                            <span>Edit</span>
+                          </button>
+                        )}
+                        {hasPermission('warehouse.edit') && (
+                          <button 
+                            className="btn-action btn-action-delete" 
+                            onClick={() => handleDeleteWarehouse(wh._id)}
+                            title="Delete warehouse"
+                          >
+                            <TrashIcon />
+                            <span>Delete</span>
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Results Count */}
-        <div className="pagination-bar">
-          <span>Showing {warehouses.length} warehouses</span>
-        </div>
+          {/* Results Count */}
+          <div className="pagination-bar">
+            <span>Showing {warehouses.length} warehouses</span>
+          </div>
+        </>
       )}
 
       {/* CREATE MODAL */}

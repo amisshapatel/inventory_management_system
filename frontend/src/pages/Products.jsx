@@ -292,83 +292,85 @@ const Products = () => {
           <span style={{ color: 'var(--text-muted)' }}>No products found matching filters.</span>
         </div>
       ) : (
-        <div className="table-card">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Product SKU</th>
-                <th>Product Name</th>
-                <th>Category</th>
-                <th>Unit</th>
-                <th>Min. Stock</th>
-                {customFieldDefs.filter(f => f.showInList).map(f => (
-                  <th key={f.key}>{f.label}</th>
-                ))}
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((product) => (
-                <tr key={product._id}>
-                  <td style={{ fontWeight: '600', color: 'var(--primary-color)' }}>{product.sku}</td>
-                  <td style={{ fontWeight: '500' }}>{product.name}</td>
-                  <td>{product.category}</td>
-                  <td>{product.unit}</td>
-                  <td>{product.minimumStock}</td>
-                  {/* Dynamic custom columns */}
+        <>
+          <div className="table-card">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Product SKU</th>
+                  <th>Product Name</th>
+                  <th>Category</th>
+                  <th>Unit</th>
+                  <th>Min. Stock</th>
                   {customFieldDefs.filter(f => f.showInList).map(f => (
-                    <td key={f.key}>
-                      {renderCustomValue(product.customFields ? product.customFields[f.key] : undefined, f.type)}
-                    </td>
+                    <th key={f.key}>{f.label}</th>
                   ))}
-                  <td>
-                    <span className={`pill ${product.status === 'Active' ? 'success' : 'danger'}`}>
-                      {product.status}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="action-btn-group">
-                      <button 
-                        className="btn-action btn-action-view" 
-                        onClick={() => handleViewProduct(product)}
-                        title="View details"
-                      >
-                        <ViewIcon />
-                        <span>View</span>
-                      </button>
-                      {hasPermission('product.edit') && (
-                        <button 
-                          className="btn-action btn-action-edit" 
-                          onClick={() => handleOpenEditModal(product)}
-                          title="Edit product"
-                        >
-                          <EditIcon />
-                          <span>Edit</span>
-                        </button>
-                      )}
-                      {hasPermission('product.delete') && (
-                        <button 
-                          className="btn-action btn-action-delete" 
-                          onClick={() => handleDeleteProduct(product._id)}
-                          title="Delete product"
-                        >
-                          <TrashIcon />
-                          <span>Delete</span>
-                        </button>
-                      )}
-                    </div>
-                  </td>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {products.map((product) => (
+                  <tr key={product._id}>
+                    <td style={{ fontWeight: '600', color: 'var(--primary-color)' }}>{product.sku}</td>
+                    <td style={{ fontWeight: '500' }}>{product.name}</td>
+                    <td>{product.category}</td>
+                    <td>{product.unit}</td>
+                    <td>{product.minimumStock}</td>
+                    {/* Dynamic custom columns */}
+                    {customFieldDefs.filter(f => f.showInList).map(f => (
+                      <td key={f.key}>
+                        {renderCustomValue(product.customFields ? product.customFields[f.key] : undefined, f.type)}
+                      </td>
+                    ))}
+                    <td>
+                      <span className={`pill ${product.status === 'Active' ? 'success' : 'danger'}`}>
+                        {product.status}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="action-btn-group">
+                        <button 
+                          className="btn-action btn-action-view" 
+                          onClick={() => handleViewProduct(product)}
+                          title="View details"
+                        >
+                          <ViewIcon />
+                          <span>View</span>
+                        </button>
+                        {hasPermission('product.edit') && (
+                          <button 
+                            className="btn-action btn-action-edit" 
+                            onClick={() => handleOpenEditModal(product)}
+                            title="Edit product"
+                          >
+                            <EditIcon />
+                            <span>Edit</span>
+                          </button>
+                        )}
+                        {hasPermission('product.delete') && (
+                          <button 
+                            className="btn-action btn-action-delete" 
+                            onClick={() => handleDeleteProduct(product._id)}
+                            title="Delete product"
+                          >
+                            <TrashIcon />
+                            <span>Delete</span>
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Results Count */}
-        <div className="pagination-bar">
-          <span>Showing {products.length} products</span>
-        </div>
+          {/* Results Count */}
+          <div className="pagination-bar">
+            <span>Showing {products.length} products</span>
+          </div>
+        </>
       )}
 
       {/* ADD MODAL */}

@@ -196,79 +196,81 @@ const Purchases = () => {
           <span style={{ color: 'var(--text-muted)' }}>No purchases recorded. Click "New Purchase Entry" to load vendor items.</span>
         </div>
       ) : (
-        <div className="table-card">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Purchase No.</th>
-                <th>Supplier</th>
-                <th>Warehouse Destination</th>
-                <th>Items Count</th>
-                <th>Notes</th>
-                <th>Status</th>
-                <th>Date Logged</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {purchases.map((pur) => (
-                <tr key={pur._id}>
-                  <td style={{ fontWeight: '700', color: 'var(--primary-color)' }}>{pur.purchaseNumber}</td>
-                  <td>{pur.supplierName || 'Anonymous Vendor'}</td>
-                  <td>
-                    <span style={{ fontWeight: '500' }}>{pur.warehouseId?.name}</span>{' '}
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>({pur.warehouseId?.code})</span>
-                  </td>
-                  <td>{pur.items?.length || 0} items</td>
-                  <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{pur.notes || '-'}</td>
-                  <td>
-                    <span className={`pill ${pur.status === 'Completed' ? 'success' : pur.status === 'Cancelled' ? 'danger' : 'warning'}`}>
-                      {pur.status}
-                    </span>
-                  </td>
-                  <td>{new Date(pur.createdAt).toLocaleDateString()}</td>
-                  <td>
-                    <div className="action-btn-group">
-                      <button 
-                        className="btn-action btn-action-view" 
-                        onClick={() => handleViewPurchase(pur._id)} 
-                        title="View details"
-                      >
-                        <ViewIcon />
-                        <span>View</span>
-                      </button>
-                      {pur.status === 'Draft' && hasPermission('purchase.edit') && (
-                        <>
-                          <button 
-                            className="btn-action btn-action-success" 
-                            onClick={() => handleUpdateStatus(pur._id, 'Completed')} 
-                            title="Complete & receive stock"
-                          >
-                            <PackageCheckIcon />
-                            <span>Receive</span>
-                          </button>
-                          <button 
-                            className="btn-action btn-action-cancel" 
-                            onClick={() => handleUpdateStatus(pur._id, 'Cancelled')} 
-                            title="Cancel purchase order"
-                          >
-                            <XCircleIcon />
-                            <span>Cancel</span>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
+        <>
+          <div className="table-card">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Purchase No.</th>
+                  <th>Supplier</th>
+                  <th>Warehouse Destination</th>
+                  <th>Items Count</th>
+                  <th>Notes</th>
+                  <th>Status</th>
+                  <th>Date Logged</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {purchases.map((pur) => (
+                  <tr key={pur._id}>
+                    <td style={{ fontWeight: '700', color: 'var(--primary-color)' }}>{pur.purchaseNumber}</td>
+                    <td>{pur.supplierName || 'Anonymous Vendor'}</td>
+                    <td>
+                      <span style={{ fontWeight: '500' }}>{pur.warehouseId?.name}</span>{' '}
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>({pur.warehouseId?.code})</span>
+                    </td>
+                    <td>{pur.items?.length || 0} items</td>
+                    <td style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{pur.notes || '-'}</td>
+                    <td>
+                      <span className={`pill ${pur.status === 'Completed' ? 'success' : pur.status === 'Cancelled' ? 'danger' : 'warning'}`}>
+                        {pur.status}
+                      </span>
+                    </td>
+                    <td>{new Date(pur.createdAt).toLocaleDateString()}</td>
+                    <td>
+                      <div className="action-btn-group">
+                        <button 
+                          className="btn-action btn-action-view" 
+                          onClick={() => handleViewPurchase(pur._id)} 
+                          title="View details"
+                        >
+                          <ViewIcon />
+                          <span>View</span>
+                        </button>
+                        {pur.status === 'Draft' && hasPermission('purchase.edit') && (
+                          <>
+                            <button 
+                              className="btn-action btn-action-success" 
+                              onClick={() => handleUpdateStatus(pur._id, 'Completed')} 
+                              title="Complete & receive stock"
+                            >
+                              <PackageCheckIcon />
+                              <span>Receive</span>
+                            </button>
+                            <button 
+                              className="btn-action btn-action-cancel" 
+                              onClick={() => handleUpdateStatus(pur._id, 'Cancelled')} 
+                              title="Cancel purchase order"
+                            >
+                              <XCircleIcon />
+                              <span>Cancel</span>
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Results Count */}
-        <div className="pagination-bar">
-          <span>Showing {purchases.length} purchases</span>
-        </div>
+          {/* Results Count */}
+          <div className="pagination-bar">
+            <span>Showing {purchases.length} purchases</span>
+          </div>
+        </>
       )}
 
       {/* CREATE PURCHASE ENTRY MODAL */}
